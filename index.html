@@ -19,7 +19,7 @@
 
 	</head>
 
-	<body ng-controller="main">
+	<body ng-controller="main" class="container">
 		<div class="container">
 	      <!-- Static navbar -->
 	      <div class="navbar navbar-default">
@@ -59,13 +59,19 @@
 		Below you will see a div element.  That element will house all the various WebGL logic
 		<br>
 		<div id="mainDrawLocation" class="table-bordered"></div>
-		</div>
 
-		<input ng-model="zoomLevel" type="range" min="100" max="1000">
+		<form class="form-inline">
+			<div class="form-group">
+				<labe>Zoom in / out</label>
+				<input ng-model="zoomLevel" type="range" min="200" max="1000">
+			</div>
+			<div class="form-group">
+				<labe>Rotate</label>
+				<input ng-model="rotate" type="checkbox">
+			</div>
 
+		</form>
 	</body>
-
-	
 	
 	<script src="lib/js/angular/angular.js" ></script>
 	<script src="lib/js/threejs/stats.min.js" ></script>
