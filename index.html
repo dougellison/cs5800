@@ -58,7 +58,7 @@
 
 		Below you will see a div element.  That element will house all the various WebGL logic
 		<br>
-		<div id="mainDrawLocation" class="table-bordered"></div>
+		<div id="mainDrawLocation" class="table-bordered" style="width: 800px; height:500"></div>
 
 		<form class="form-inline">
 			<div class="form-group">
@@ -69,15 +69,31 @@
 				<labe>Rotate</label>
 				<input ng-model="rotate" type="checkbox">
 			</div>
-
+		</form>
+		<form class="form-horizontal">
+			<div class="form-group">
+				<labe>X:</label>
+				<input ng-model="mesh2.position.x" type="range" min="-600" max="600">
+			</div>
+			<div class="form-group">
+				<labe>Y:</label>
+				<input ng-model="mesh2.position.y" type="range" min="-600" max="600">
+			</div>
+			<div class="form-group">
+				<labe>Z:</label>
+				<input ng-model="mesh2.position.z" type="range" min="-600" max="600">
+			</div>
 		</form>
 	</body>
 	
+	<script src="./lib/js/three.min.js"></script> 
 	<script src="lib/js/angular/angular.js" ></script>
 	<script src="lib/js/threejs/stats.min.js" ></script>
+	<script src="lib/js/threejs/TrackballControls.js" ></script>
+
 	<script src="lib/js/threejs/Detector.js" ></script>
 	<script type="text/javascript" src="js/main.js"></script>
-	<script src="./lib/js/three.min.js"></script> 
+
 	<script type="text/javascript" src="./lib/js/jquery-2.0.3.min.js"></script>
 	<script type="text/javascript" src="./lib/bootstrap/js/bootstrap.js"> </script>
 
