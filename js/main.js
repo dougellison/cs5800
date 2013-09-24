@@ -3,11 +3,8 @@
 
 // Declare app level module which depends on filters, and services
 angular.module('mainApp', [])
-	.controller('main', function($scope, $routeParams) {
+	.controller('main', function($scope) {
 		$scope.hello = "Hello World";
-
-		console.log($routeParams);
-
 
 		// $scope.initCanvas1 = function() {
 
