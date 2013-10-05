@@ -11,10 +11,7 @@
 
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-
-		<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> -->
-
-    	<meta name="viewport" content="width=device-width, initial-scale=1.0">		
+	    	<meta name="viewport" content="width=device-width, initial-scale=1.0">		
 		<link rel="stylesheet" href="./lib/bootstrap/css/bootstrap.css" media="screen">
 
 	</head>
@@ -45,8 +42,7 @@
 	                <li><a href="http://dougellison.github.io/demos/google/procedural-texture-test" target="_blank">Procedural Texture Test</a></li>
 	                <li><a href="http://dougellison.github.io/demos/google/shiny-teapot" target="_blank">Shiny Teapot</a></li>
 	                <li><a href="http://dougellison.github.io/demos/google/web-workers-typed-arrays" target="_blank">Web Workers Typed Arrays</a></li>
-<!-- 	                <li class="divider"></li> -->
-	                <!-- <li class="dropdown-header">Nav header</li> -->
+
 	              </ul>
 	            </li>
 	          </ul>
@@ -58,8 +54,11 @@
 
 		Below you will see a div element.  That element will house all the various WebGL logic
 		<br>
+		<!-- Below defines a container that holds the ThreeJS drawing.  Currently specifying a hard coded height and width -->
 		<div id="mainDrawLocation" class="table-bordered" style="width: 800px; height:500"></div>
 
+		<!-- Using Twitter bootstrap for some of the more flashy drop down menus and layout. Below is an example of an inline form
+		This form simply defines a left hand to right hand side flow. Each form-group is a chunk with label then input-->
 		<form class="form-inline">
 			<div class="form-group">
 				<labe>Zoom in / out</label>
@@ -70,6 +69,7 @@
 				<input ng-model="rotate" type="checkbox">
 			</div>
 		</form>
+		<!-- Defines a horizontal flow.  Each form-group is a chunk where label / input are on a single line -->
 		<form class="form-horizontal">
 			<div class="form-group">
 				<labe>X:</label>
@@ -89,6 +89,8 @@
 		</form>
 	</body>
 	
+	<!-- The various includes for ThreeJS Angular and bootstrap.  Along with main.js which is where I've put all my 
+	implementation-->
 	<script src="./lib/js/three.min.js"></script> 
 	<script src="lib/js/angular/angular.js" ></script>
 	<script src="lib/js/threejs/stats.min.js" ></script>
