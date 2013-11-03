@@ -52,49 +52,143 @@
 	    
 		<h1>Welcome</h1>
 
-		Below you will see a div element.  That element will house all the various WebGL logic
+		Use the controls on the left to make changes
 		<br>
 		<!-- Below defines a container that holds the ThreeJS drawing.  Currently specifying a hard coded height and width -->
-		<div id="mainDrawLocation" class="table-bordered" style="width: 800px; height:500"></div>
+        <div class="row">
+            <div class="panel-group col-lg-3" id="accordion">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                                Import / Export
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            Controls for importing and exporting
+                            <input type="text" ng-keydown="{rotate()}" ng-keypress="{rotate()}"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                                Objects
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            This is where new objects can be added / removed
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+                                Camera Control
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseThree" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Move X </label>
+                                    <div class="col-sm-9">
+                                        <input ng-model="camera.position.x" type="range" min="-10000" max="10000"><input type="text" ng-model="camera.position.x"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Move Y</label>
+                                    <div class="col-sm-9">
+                                        <input ng-model="camera.position.y" type="range" min="-10000" max="10000"><input type="text" ng-model="camera.position.y"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Move Z</label>
+                                    <div class="col-sm-9">
+                                        <input ng-model="camera.position.z" type="range" min="-10000" max="10000"><input type="text" ng-model="camera.position.z"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Frustum</label>
+                                    <div class="col-sm-9">
+                                        <input ng-model="fovString" type="range" min="0" max="180"><input type="text" ng-model="fovString"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Aspect</label>
+                                    <div class="col-sm-9">
+                                        <input ng-model="camera.aspect" type="range" min="1" max="5" step="0.001"><input type="text" ng-model="camera.aspect"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Near</label>
+                                    <div class="col-sm-9">
+                                        <input ng-model="nearString" type="range" min="1" max="3000"><input type="text" ng-model="nearString"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Far</label>
+                                    <div class="col-sm-9">
+                                        <input ng-model="farString" type="range" min="0" max="5000"><input type="text" ng-model="farString"/>
+                                    </div>
+                                </div>
 
-		<!-- Using Twitter bootstrap for some of the more flashy drop down menus and layout. Below is an example of an inline form
-		This form simply defines a left hand to right hand side flow. Each form-group is a chunk with label then input-->
-		<form class="form-inline">
-			<div class="form-group">
-				<labe>Zoom in / out</label>
-				<input ng-model="zoomLevel" type="range" min="200" max="1000">
-			</div>
-			<div class="form-group">
-				<labe>Rotate</label>
-				<input ng-model="rotate" type="checkbox">
-			</div>
-		</form>
-		<!-- Defines a horizontal flow.  Each form-group is a chunk where label / input are on a single line -->
-		<form class="form-horizontal">
-			<div class="form-group">
-				<labe>X:</label>
-				<input ng-model="nonRotatingMesh.position.x" type="range" min="-600" max="600">
-				<input ng-model="nonRotatingMesh.position.x" type="text"/>
-			</div>
-			<div class="form-group">
-				<labe>Y:</label>
-				<input ng-model="nonRotatingMesh.position.y" type="range" min="-600" max="600">
-				<input ng-model="nonRotatingMesh.position.y" type="text"/>
-			</div>
-			<div class="form-group">
-				<labe>Z:</label>
-				<input ng-model="nonRotatingMesh.position.z" type="range" min="-600" max="600">
-				<input ng-model="nonRotatingMesh.position.z" type="text"/>
-			</div>
-		</form>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="mainDrawLocation" class="table-bordered col-lg-9" style="height:900"></div>
+        </div>
+
+
+
+            <!-- Using Twitter bootstrap for some of the more flashy drop down menus and layout. Below is an example of an inline form
+            This form simply defines a left hand to right hand side flow. Each form-group is a chunk with label then input-->
+		<!--<form class="form-inline">-->
+			<!--<div class="form-group">-->
+				<!--<labe>Zoom in / out</label>-->
+				<!--<input ng-model="zoomLevel" type="range" min="200" max="1000">-->
+			<!--</div>-->
+			<!--<div class="form-group">-->
+				<!--<labe>Rotate</label>-->
+				<!--<input ng-model="rotate" type="checkbox">-->
+			<!--</div>-->
+		<!--</form>-->
+		<!--&lt;!&ndash; Defines a horizontal flow.  Each form-group is a chunk where label / input are on a single line &ndash;&gt;-->
+		<!--<form class="form-horizontal">-->
+			<!--<div class="form-group">-->
+				<!--<labe>X:</label>-->
+				<!--<input ng-model="nonRotatingMesh.position.x" type="range" min="-600" max="600">-->
+				<!--<input ng-model="nonRotatingMesh.position.x" type="text"/>-->
+			<!--</div>-->
+			<!--<div class="form-group">-->
+				<!--<labe>Y:</label>-->
+				<!--<input ng-model="nonRotatingMesh.position.y" type="range" min="-600" max="600">-->
+				<!--<input ng-model="nonRotatingMesh.position.y" type="text"/>-->
+			<!--</div>-->
+			<!--<div class="form-group">-->
+				<!--<labe>Z:</label>-->
+				<!--<input ng-model="nonRotatingMesh.position.z" type="range" min="-600" max="600">-->
+				<!--<input ng-model="nonRotatingMesh.position.z" type="text"/>-->
+			<!--</div>-->
+		<!--</form>-->
 	</body>
 	
 	<!-- The various includes for ThreeJS Angular and bootstrap.  Along with main.js which is where I've put all my 
 	implementation-->
 	<script src="./lib/js/three.min.js"></script> 
-	<script src="lib/js/angular/angular.js" ></script>
+	<script src="lib/js/angular/angular-all.min.js" ></script>
 	<script src="lib/js/threejs/stats.min.js" ></script>
 	<script src="lib/js/threejs/TrackballControls.js" ></script>
+	<script src="lib/js/threejs/OrbitControls.js" ></script>
 
 	<script src="lib/js/threejs/Detector.js" ></script>
 	<script type="text/javascript" src="js/main.js"></script>
