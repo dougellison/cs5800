@@ -80,9 +80,56 @@
                             </a>
                         </h4>
                     </div>
-                    <div id="collapseTwo" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            This is where new objects can be added / removed
+                    <div id="collapseTwo" class="panel-collapse collapse in">
+                        <div class="panel-body" ng-init="objectAction = 'Add'">
+
+                            <button ng-click="objectAction = 'Add'">Add</button>
+                            <button ng-click="objectAction = 'Edit'">Edit / Remove</button>
+
+
+
+
+                            <div ng-show="objectAction == 'Add'" class="form-horizontal">
+                                <div class="form-group">
+
+                                    <label class="col-sm-5">Object Type</label>
+                                    <div class="col-sm-7">
+                                        <select ng-model="selectedObjectType">
+                                            <option ng-repeat="object in objectTypes" >{{object.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div ng-switch="selectedObjectType">
+                                    <div ng-switch-when="Cube">
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">X</label>
+                                            <div class="col-sm-10">
+                                                <input type="text" ng-model="$parent.xValue" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">Y</label>
+                                            <div class="col-sm-10">
+                                                <input type="text" ng-model="$parent.yValue" ng-init="yValue = 200"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">Z</label>
+                                            <div class="col-sm-10">
+                                                <input type="text" ng-model="$parent.zValue" ng-init="zValue = 200"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">Click Save</label>
+                                            <div class="col-sm-10">
+                                                <button ng-click="addObject()">Insert Object</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div ng-switch-when="Sphere">Sphere</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -94,7 +141,7 @@
                             </a>
                         </h4>
                     </div>
-                    <div id="collapseThree" class="panel-collapse collapse in">
+                    <div id="collapseThree" class="panel-collapse collapse">
                         <div class="panel-body">
                             <form class="form-horizontal">
                                 <div class="form-group">

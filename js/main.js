@@ -6,6 +6,10 @@
 angular.module('mainApp', [])
     .controller('main', function($scope) {
 
+        $scope.objectTypes = [];
+        $scope.objectTypes.push({name: 'Cube'},{name: 'Sphere'});
+        $scope.selectedObjectType = 'Cube';
+
         // This is the main init of the ThreeJS library.  It sets up the scene / camera and adds the objects
         $scope.initCanvas = function() {
 
@@ -30,7 +34,7 @@ angular.module('mainApp', [])
             camera = new THREE.PerspectiveCamera( 70, 1070 / 500, 1, 3000 );
             $scope.nearString = 1;
             $scope.farString = 3000;
-            camera.position.set( 1000, 1000, 1000 );
+            camera.position.set( 0, 1000, 1000 );
             camera.lookAt( new THREE.Vector3( 0,0, 0 ) );
 
             // Set the depth where the camera starts. This can be changed with the user control zoom level
@@ -47,6 +51,7 @@ angular.module('mainApp', [])
             light.position.set( 1, 1, 1 );
 
             scene.add(light);
+
             // Use scene and the camera to render what is viewable by the user.
             renderer.render(scene, camera);
 
@@ -139,6 +144,29 @@ angular.module('mainApp', [])
             if (angular.isDefined(newValue))
                 $scope.camera.updateProjectionMatrix();
         })
+
+        $scope.addObject = function() {
+            if ($scope.selectedObjectType == 'Cube')
+                $scope.addCube();
+        }
+
+        $scope.addCube = function() {
+            var geometry = new THREE.CubeGeometry( $scope.xValue, $scope.yValue, $scope.zValue );
+
+//            for ( var i = 0; i < geometry.faces.length; i += 2 ) {
+//
+//                var hex = Math.random() * 0xffffff;
+//                geometry.faces[ i ].color.setHex( hex );
+//                geometry.faces[ i + 1 ].color.setHex( hex );
+//
+//            }
+//
+            var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors, overdraw: 0.5 } );
+//
+            var cube = new THREE.Mesh( geometry, material );
+            cube.position.y = 150;
+            $scope.scene.add( cube );
+        }
 
 
 
