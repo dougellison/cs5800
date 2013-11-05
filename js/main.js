@@ -246,12 +246,7 @@ angular.module('mainApp', [])
                 if (localObject.id == newValue) {
 
                     // Now that we've found one we want to deselect the past one of there was one.
-                    if (angular.isDefined($scope.editableObject)) {
-                        if ($scope.editableObject.isType == "Sphere")
-                            $scope.editableObject.material = $scope.sphereMaterial;
-                        else
-                            $scope.editableObject.material = $scope.basicMaterial;
-                    }
+                    $scope.deSelect($scope.editableObject);
                     $scope.editableObject = localObject.data;
 
                     $scope.editableObject.material = $scope.selectedMaterial;
@@ -260,35 +255,35 @@ angular.module('mainApp', [])
             })
         })
 
-        $scope.test = function(event) {
-
-            var divElement = event.currentTarget;
-            var rect = divElement.getBoundingClientRect();
-
-            $scope.mouse.x = ( (event.clientX - rect.left)/ 1070 ) * 2 - 1;
-            $scope.mouse.y = - ( (event.clientY - rect.top)/ 500) * 2 + 1;
-
-            console.log("X: " + $scope.mouse.x + " Y: " + $scope.mouse.y);
-            var vector = new THREE.Vector3( $scope.mouse.x, $scope.mouse.y, 0.5 );
-            $scope.camera.updateProjectionMatrix();
-            $scope.projector.unprojectVector( vector, $scope.camera );
-
-            $scope.raycaster.set($scope.cleanVector($scope.camera.position), vector.sub($scope.cleanVector($scope.camera.position) ).normalize() );
-
-            var intersects = $scope.raycaster.intersectObjects( $scope.scene.children );
-            if (intersects.length > 0){
-                $scope.editableObject = intersects[0];
-                $scope.editableObject.material.color =  new THREE.Color( "blue");
-
-            }
-            else {
-                if (angular.isDefined($scope.editableObject) && $scope.editableObject.material)
-                    $scope.editableObject.material.color =  new THREE.Color("red");
-            }
-
-
-
-        }
+//        $scope.test = function(event) {
+//
+//            var divElement = event.currentTarget;
+//            var rect = divElement.getBoundingClientRect();
+//
+//            $scope.mouse.x = ( (event.clientX - rect.left)/ 1070 ) * 2 - 1;
+//            $scope.mouse.y = - ( (event.clientY - rect.top)/ 500) * 2 + 1;
+//
+//            console.log("X: " + $scope.mouse.x + " Y: " + $scope.mouse.y);
+//            var vector = new THREE.Vector3( $scope.mouse.x, $scope.mouse.y, 0.5 );
+//            $scope.camera.updateProjectionMatrix();
+//            $scope.projector.unprojectVector( vector, $scope.camera );
+//
+//            $scope.raycaster.set($scope.cleanVector($scope.camera.position), vector.sub($scope.cleanVector($scope.camera.position) ).normalize() );
+//
+//            var intersects = $scope.raycaster.intersectObjects( $scope.scene.children );
+//            if (intersects.length > 0){
+//                $scope.editableObject = intersects[0];
+//                $scope.editableObject.material.color =  new THREE.Color( "blue");
+//
+//            }
+//            else {
+//                if (angular.isDefined($scope.editableObject) && $scope.editableObject.material)
+//                    $scope.editableObject.material.color =  new THREE.Color("red");
+//            }
+//
+//
+//
+//        }
 
         $scope.cleanVector = function(vector) {
             return new THREE.Vector3(parseInt(vector.x), parseInt(vector.y), parseInt(vector.z));
@@ -348,24 +343,25 @@ angular.module('mainApp', [])
                 angular.forEach(intersects, function(intersect) {
                     if (intersect.object.type != 1){
                         console.log('I have found it!!!!' + new Date().getTime());
+
+                        $scope.deSelect($scope.editableObject);
                         $scope.editableObject = intersects[0].object;
                         $scope.editableObject.material = $scope.selectedMaterial;
                     }
                 })
             }
             else {
-                if (angular.isDefined($scope.editableObject) && $scope.editableObject.material) {
-                    if ($scope.editableObject.isType == "Sphere")
-                        $scope.editableObject.material = $scope.sphereMaterial;
-                    else
-                    $scope.editableObject.material = $scope.basicMaterial;
-
-                }
-
+                $scope.deSelect($scope.editableObject);
             }
+        }
 
-
-
+        $scope.deSelect = function(object) {
+            if (angular.isDefined(object) && object.material) {
+                if ($scope.editableObject.isType == "Sphere")
+                    $scope.editableObject.material = $scope.sphereMaterial;
+                else
+                    $scope.editableObject.material = $scope.basicMaterial;
+            }
         }
 
 
