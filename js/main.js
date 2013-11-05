@@ -12,7 +12,13 @@ angular.module('mainApp', [])
 
 
         $scope.objects = [];
+        $scope.objects.push({id:-1, name: 'Select an Object', data: {}});
         $scope.objectCounter = 0;
+
+        $scope.raycaster = new THREE.Raycaster();
+        $scope.projector = new THREE.Projector();
+        $scope.mouse = new THREE.Vector2()
+
         // This is the main init of the ThreeJS library.  It sets up the scene / camera and adds the objects
         $scope.initCanvas = function() {
 
@@ -199,6 +205,39 @@ angular.module('mainApp', [])
                     $scope.editableObjectId = newValue;
             })
         })
+
+        $scope.test = function(event) {
+
+            var divElement = event.currentTarget;
+            var rect = divElement.getBoundingClientRect();
+
+            $scope.mouse.x = ( (event.clientX - rect.left)/ 1070 ) * 2 - 1;
+            $scope.mouse.y = - ( (event.clientY - rect.top)/ 500) * 2 + 1;
+
+            console.log("X: " + $scope.mouse.x + " Y: " + $scope.mouse.y);
+            var vector = new THREE.Vector3( $scope.mouse.x, $scope.mouse.y, 0.5 );
+            $scope.projector.unprojectVector( vector, $scope.camera );
+
+            $scope.raycaster.set( $scope.camera.position, vector.sub($scope.camera.position ).normalize() );
+
+            var intersects = $scope.raycaster.intersectObjects( $scope.scene.children );
+            if (intersects.length > 0){
+                console.log('I have found it!!!!' + new Date().getTime());
+                $scope.editableObject = intersects[0];
+            }
+
+
+        }
+
+//        $scope.logPosition = function(event) {
+//            var divElement = event.currentTarget;
+//            var rect = divElement.getBoundingClientRect();
+//
+//            var x = ( (event.clientX - rect.left)/ 1070 ) * 2 - 1;
+//            var y = - ( (event.clientY - rect.top)/ 500) * 2 + 1;
+//            console.log ('event.clientX: ' + event.clientX + "        event.clientY: " + event.clientY);
+//            console.log ('x: ' + x + "        y: " + y);
+//        }
 
 
 

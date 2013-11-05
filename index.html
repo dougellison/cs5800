@@ -104,19 +104,19 @@
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">X</label>
                                             <div class="col-sm-10">
-                                                <input type="text" ng-model="$parent.xValue" ng-init="$parent.xValue = 200" />
+                                                <input type="text" ng-model="$parent.xValue" ng-init="$parent.xValue = 50" />
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">Y</label>
                                             <div class="col-sm-10">
-                                                <input type="text" ng-model="$parent.yValue" ng-init="$parent.yValue = 200"/>
+                                                <input type="text" ng-model="$parent.yValue" ng-init="$parent.yValue = 50"/>
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">Z</label>
                                             <div class="col-sm-10">
-                                                <input type="text" ng-model="$parent.zValue" ng-init="$parent.zValue = 200"/>
+                                                <input type="text" ng-model="$parent.zValue" ng-init="$parent.zValue = 50"/>
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -130,19 +130,19 @@
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">Radius</label>
                                             <div class="col-sm-10">
-                                                <input type="text" ng-model="$parent.radius" ng-init="$parent.radius = 200" />
+                                                <input type="text" ng-model="$parent.radius" ng-init="$parent.radius = 100" />
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">Segments</label>
                                             <div class="col-sm-10">
-                                                <input type="text" ng-model="$parent.segments" ng-init="$parent.segments = 200"/>
+                                                <input type="text" ng-model="$parent.segments" ng-init="$parent.segments = 100"/>
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">Rings</label>
                                             <div class="col-sm-10">
-                                                <input type="text" ng-model="$parent.rings" ng-init="$parent.rings = 200"/>
+                                                <input type="text" ng-model="$parent.rings" ng-init="$parent.rings = 100"/>
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -253,7 +253,7 @@
                     </div>
                 </div>
             </div>
-            <div id="mainDrawLocation" class="table-bordered col-lg-9" style="height:900"></div>
+            <div id="mainDrawLocation" class="table-bordered col-lg-9" ng-mousedown="test($event)" ng-mousemove="logPosition($event)" style="height:900"></div>
         </div>
 
 
