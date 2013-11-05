@@ -15,7 +15,7 @@ angular.module('mainApp', [])
         $scope.objects.push({id:-1, name: 'Select an Object', data: {}});
         $scope.objectCounter = 0;
 
-        $scope.editableObject = $scope.objects[0];
+        $scope.selectedObject = $scope.objects[0];
 
         $scope.raycaster = new THREE.Raycaster();
         $scope.projector = new THREE.Projector();
@@ -111,11 +111,11 @@ angular.module('mainApp', [])
             angular.forEach($scope.objects, function(localObject) {
                 if (localObject.data.rotateType === 'cont') {
                     if (angular.isDefined(localObject.data.rotationXAmount))
-                        localObject.data.rotation.x += parseFloat(localObject.data.rotationXAmount);
+                        localObject.data.rotation.x = parseFloat(localObject.data.rotation.x) + parseFloat(localObject.data.rotationXAmount);
                     if (angular.isDefined(localObject.data.rotationYAmount))
-                        localObject.data.rotation.y += parseFloat(localObject.data.rotationYAmount);
+                        localObject.data.rotation.y = parseFloat(localObject.data.rotation.y) + parseFloat(localObject.data.rotationYAmount);
                     if (angular.isDefined(localObject.data.rotationZAmount))
-                        localObject.data.rotation.z += parseFloat(localObject.data.rotationZAmount);
+                        localObject.data.rotation.z = parseFloat(localObject.data.rotation.z) + parseFloat(localObject.data.rotationZAmount);
                 }
             })
             // Regardless of if the user initialized rotation or the automatic rotation occurred go ahead and render again
@@ -219,6 +219,7 @@ angular.module('mainApp', [])
             cube.position.y = 150;
             cube.geometry.dynamic = true
             cube.rotateType = 'stat';
+            cube.listID = $scope.objectCounter;
             $scope.scene.add( cube );
             $scope.objects.push({id: $scope.objectCounter, name: 'Cube', data: cube});
             $scope.objectCounter++;
@@ -233,6 +234,7 @@ angular.module('mainApp', [])
             sphere.geometry.dynamic = true;
             sphere.rotateType = 'stat';
             sphere.isType = "Sphere";
+            sphere.listID = $scope.objectCounter;
             $scope.scene.add(sphere);
             $scope.objects.push({id:$scope.objectCounter, name: 'Sphere', data: sphere});
             $scope.objectCounter++;
@@ -243,10 +245,10 @@ angular.module('mainApp', [])
                 return;
 
             angular.forEach($scope.objects, function(localObject) {
-                if (localObject.id == newValue) {
+                if (localObject.id == newValue.id) {
 
                     // Now that we've found one we want to deselect the past one of there was one.
-                    $scope.deSelect($scope.editableObject);
+                    $scope.deSelect($scope.editableObject, false);
                     $scope.editableObject = localObject.data;
 
                     $scope.editableObject.material = $scope.selectedMaterial;
@@ -344,7 +346,11 @@ angular.module('mainApp', [])
                     if (intersect.object.type != 1){
                         console.log('I have found it!!!!' + new Date().getTime());
 
-                        $scope.deSelect($scope.editableObject);
+                        $scope.deSelect($scope.editableObject, false);
+                        angular.forEach($scope.objects, function(localObject) {
+                            if (localObject.id == intersect.object.listID)
+                                $scope.selectedObject = localObject;
+                        })
                         $scope.editableObject = intersects[0].object;
                         $scope.editableObject.material = $scope.selectedMaterial;
                     }
@@ -352,16 +358,20 @@ angular.module('mainApp', [])
             }
             else {
                 $scope.deSelect($scope.editableObject);
+                $scope.selectedObject = $scope.objects[0];
+
             }
         }
 
-        $scope.deSelect = function(object) {
+        $scope.deSelect = function(object, clearDropdown) {
             if (angular.isDefined(object) && object.material) {
                 if ($scope.editableObject.isType == "Sphere")
                     $scope.editableObject.material = $scope.sphereMaterial;
                 else
                     $scope.editableObject.material = $scope.basicMaterial;
             }
+            if (clearDropdown)
+                $scope.selectedObject = $scope.objects[0];
         }
 
 

@@ -158,11 +158,11 @@
                             </div>
 
                             <div ng-show="objectAction == 'EditRemove'">
-                                <select ng-model="selectedObject">
-                                    <option ng-repeat="object in objects" value="{{object.id}}">{{object.name}}</option>
+                                <select ng-model="selectedObject" ng-options="object.name for object in objects">
+
                                 </select>
 
-                                <div ng-show="editableObject">
+                                <div ng-show="editableObject" class="form-horizontal">
                                     <div class="form-group">
                                         <label class="col-sm-4 control-label">X position</label>
                                         <div class="col-sm-8">
@@ -191,7 +191,7 @@
                                         </div>
                                     </div>
 
-                                    <div ng-show="editableObject.rotateType == 'stat'">
+                                    <div ng-show="editableObject.rotateType == 'stat'" class="row">
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">X-axis</label>
                                             <div class="col-sm-8">
