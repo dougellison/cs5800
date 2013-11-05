@@ -19,6 +19,8 @@ angular.module('mainApp', [])
         $scope.projector = new THREE.Projector();
         $scope.mouse = new THREE.Vector2()
 
+        $scope.cameraRepresentation = {};
+
         // This is the main init of the ThreeJS library.  It sets up the scene / camera and adds the objects
         $scope.initCanvas = function() {
 
@@ -40,10 +42,10 @@ angular.module('mainApp', [])
 
             // This creates a camera that is controlled by the user
             //camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
-            camera = new THREE.PerspectiveCamera( 70, 1070 / 500, 1, 3000 );
+            camera = new THREE.PerspectiveCamera( 70, 1070 / 500, 1, 10000 );
             $scope.nearString = 1;
             $scope.farString = 3000;
-            camera.position.set( 0, 1000, 1000 );
+            camera.position.set( 0, 1000, 100 );
             camera.lookAt( new THREE.Vector3( 0,0, 0 ) );
 
             // Set the depth where the camera starts. This can be changed with the user control zoom level
@@ -110,14 +112,20 @@ angular.module('mainApp', [])
         $scope.$watch('camera.position.x', function(newValue) {
             if (angular.isDefined(newValue) && $scope.lookAt000 === true)
                 $scope.camera.lookAt( new THREE.Vector3( 0,0, 0 ) );
+
+            $scope.camera.updateProjectionMatrix();
         })
         $scope.$watch('camera.position.y', function(newValue) {
             if (angular.isDefined(newValue) && $scope.lookAt000 === true)
                 $scope.camera.lookAt( new THREE.Vector3( 0,0, 0 ) );
+
+            $scope.camera.updateProjectionMatrix();
         })
         $scope.$watch('camera.position.z', function(newValue) {
             if (angular.isDefined(newValue) && $scope.lookAt000 === true)
                 $scope.camera.lookAt( new THREE.Vector3( 0,0, 0 ) );
+
+            $scope.camera.updateProjectionMatrix();
         })
 
 //        $scope.$watch('camera.near', function(newValue){
@@ -216,6 +224,7 @@ angular.module('mainApp', [])
 
             console.log("X: " + $scope.mouse.x + " Y: " + $scope.mouse.y);
             var vector = new THREE.Vector3( $scope.mouse.x, $scope.mouse.y, 0.5 );
+            $scope.camera.updateProjectionMatrix();
             $scope.projector.unprojectVector( vector, $scope.camera );
 
             $scope.raycaster.set( $scope.camera.position, vector.sub($scope.camera.position ).normalize() );
@@ -229,17 +238,45 @@ angular.module('mainApp', [])
 
         }
 
-//        $scope.logPosition = function(event) {
-//            var divElement = event.currentTarget;
-//            var rect = divElement.getBoundingClientRect();
-//
-//            var x = ( (event.clientX - rect.left)/ 1070 ) * 2 - 1;
-//            var y = - ( (event.clientY - rect.top)/ 500) * 2 + 1;
-//            console.log ('event.clientX: ' + event.clientX + "        event.clientY: " + event.clientY);
-//            console.log ('x: ' + x + "        y: " + y);
-//        }
+        $scope.logPosition = function(event) {
+            var divElement = event.currentTarget;
+            var rect = divElement.getBoundingClientRect();
+
+            $scope.mouse.x = ( (event.clientX - rect.left - 20)/ 1070 ) * 2 - 1;
+            $scope.mouse.y = - ( (event.clientY - rect.top)/ 500) * 2 + 1;
+
+            console.log("X: " + $scope.mouse.x + " Y: " + $scope.mouse.y);
+            var vector = new THREE.Vector3( $scope.mouse.x, $scope.mouse.y, 0.5 );
+            $scope.projector.unprojectVector( vector, $scope.camera );
+            var vector = new THREE.Vector3($scope.camera.position.x)
+            $scope.raycaster.set($scope.cleanVector($scope.camera.position), vector.sub(cleanVector($scope.camera.position) ).normalize() );
+
+            var intersects = $scope.raycaster.intersectObjects( $scope.scene.children );
+            if (intersects.length > 0){
+                angular.forEach(intersects, function(intersect) {
+                    if (intersect.object.type != 1){
+                        console.log('I have found it!!!!' + new Date().getTime());
 
 
+                        $scope.editableObject = intersects[0].object;
+                        $scope.editableObject.material.color =  new THREE.Color( "blue");
+
+                    }
+                })
+
+
+            }
+            else {
+                if (angular.isDefined($scope.editableObject))
+                    $scope.editableObject.material.color =  new THREE.Color("red");
+            }
+
+            console.log($scope.camera.position)
+        }
+
+        $scope.cleanVector = function(vector) {
+            return new THREE.Vector3(parseInt(vector.x), parseInt(vector.y), parseInt(vector.z));
+        }
 
     })
 
