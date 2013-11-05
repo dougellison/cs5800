@@ -15,13 +15,21 @@ angular.module('mainApp', [])
         $scope.objects.push({id:-1, name: 'Select an Object', data: {}});
         $scope.objectCounter = 0;
 
+        $scope.editableObject = $scope.objects[0];
+
         $scope.raycaster = new THREE.Raycaster();
         $scope.projector = new THREE.Projector();
         $scope.mouse = new THREE.Vector2()
 
         $scope.cameraRepresentation = {};
 
-        // This is the main init of the ThreeJS library.  It sets up the scene / camera and adds the objects
+
+        $scope.basicMaterial = new THREE.MeshNormalMaterial( { shading: THREE.SmoothShading, overdraw: true } )
+        $scope.selectedMaterial = new THREE.MeshBasicMaterial( { color: 'red'} );
+
+
+
+            // This is the main init of the ThreeJS library.  It sets up the scene / camera and adds the objects
         $scope.initCanvas = function() {
 
             var camera, scene, renderer, controls;
@@ -59,9 +67,22 @@ angular.module('mainApp', [])
             scene.add(grid);
 
             var light = new THREE.DirectionalLight( 0xffffff, 2 );
-            light.position.set( 1, 1, 1 );
+            light.position.set( 500, 500, 500 );
 
             scene.add(light);
+
+
+
+            // This is loading a panoramic image taken with a Nexus 4 360 sphere application. It creates a large
+            // 4000x4000 single image stitched together from multiple camera shots.
+            var texture = THREE.ImageUtils.loadTexture( 'images/panoramic.jpg' );
+
+            // Just setting the texture to be directionally dependent.  This is important for the layout of the texture
+            // to smoothly cover the sphere that will be created later.
+            texture.anisotropy = renderer.getMaxAnisotropy();
+
+            // Just creating a material that will be stretched across the spheres created a few lines down
+            $scope.sphereMaterial = new THREE.MeshBasicMaterial( { map: texture } );
 
             // Use scene and the camera to render what is viewable by the user.
             renderer.render(scene, camera);
@@ -87,6 +108,16 @@ angular.module('mainApp', [])
             requestAnimationFrame( animate );
 
 
+            angular.forEach($scope.objects, function(localObject) {
+                if (localObject.data.rotateType === 'cont') {
+                    if (angular.isDefined(localObject.data.rotationXAmount))
+                        localObject.data.rotation.x += parseFloat(localObject.data.rotationXAmount);
+                    if (angular.isDefined(localObject.data.rotationYAmount))
+                        localObject.data.rotation.y += parseFloat(localObject.data.rotationYAmount);
+                    if (angular.isDefined(localObject.data.rotationZAmount))
+                        localObject.data.rotation.z += parseFloat(localObject.data.rotationZAmount);
+                }
+            })
             // Regardless of if the user initialized rotation or the automatic rotation occurred go ahead and render again
             // If nothing has changed this is an idempotent call.
             $scope.renderer.render( $scope.scene, $scope.camera );
@@ -110,7 +141,9 @@ angular.module('mainApp', [])
 
 
         $scope.$watch('camera.position.x', function(newValue) {
-            if (angular.isDefined(newValue) && $scope.lookAt000 === true)
+            if (!angular.isDefined(newValue))
+                return;
+            if ($scope.lookAt000 === true)
                 $scope.camera.lookAt( new THREE.Vector3( 0,0, 0 ) );
 
             $scope.camera.updateProjectionMatrix();
@@ -182,9 +215,10 @@ angular.module('mainApp', [])
 //
             var material = new THREE.MeshBasicMaterial( { color: 'red'} );
 //
-            var cube = new THREE.Mesh( geometry, material );
+            var cube = new THREE.Mesh( geometry, $scope.basicMaterial );
             cube.position.y = 150;
             cube.geometry.dynamic = true
+            cube.rotateType = 'stat';
             $scope.scene.add( cube );
             $scope.objects.push({id: $scope.objectCounter, name: 'Cube', data: cube});
             $scope.objectCounter++;
@@ -195,9 +229,10 @@ angular.module('mainApp', [])
 
             // create a new mesh with sphere geometry -
             var sphereGeometry = new THREE.SphereGeometry($scope.radius, $scope.segments, $scope.rings);
-            var material = new THREE.MeshBasicMaterial({color: 'blue'});
-            var sphere = new THREE.Mesh(sphereGeometry, material);
+            var sphere = new THREE.Mesh(sphereGeometry, $scope.sphereMaterial);
             sphere.geometry.dynamic = true;
+            sphere.rotateType = 'stat';
+            sphere.isType = "Sphere";
             $scope.scene.add(sphere);
             $scope.objects.push({id:$scope.objectCounter, name: 'Sphere', data: sphere});
             $scope.objectCounter++;
@@ -208,9 +243,20 @@ angular.module('mainApp', [])
                 return;
 
             angular.forEach($scope.objects, function(localObject) {
-                if (localObject.id == newValue)
+                if (localObject.id == newValue) {
+
+                    // Now that we've found one we want to deselect the past one of there was one.
+                    if (angular.isDefined($scope.editableObject)) {
+                        if ($scope.editableObject.isType == "Sphere")
+                            $scope.editableObject.material = $scope.sphereMaterial;
+                        else
+                            $scope.editableObject.material = $scope.basicMaterial;
+                    }
                     $scope.editableObject = localObject.data;
-                    $scope.editableObjectId = newValue;
+
+                    $scope.editableObject.material = $scope.selectedMaterial;
+                }
+
             })
         })
 
@@ -227,56 +273,102 @@ angular.module('mainApp', [])
             $scope.camera.updateProjectionMatrix();
             $scope.projector.unprojectVector( vector, $scope.camera );
 
-            $scope.raycaster.set( $scope.camera.position, vector.sub($scope.camera.position ).normalize() );
+            $scope.raycaster.set($scope.cleanVector($scope.camera.position), vector.sub($scope.cleanVector($scope.camera.position) ).normalize() );
 
             var intersects = $scope.raycaster.intersectObjects( $scope.scene.children );
             if (intersects.length > 0){
-                console.log('I have found it!!!!' + new Date().getTime());
                 $scope.editableObject = intersects[0];
+                $scope.editableObject.material.color =  new THREE.Color( "blue");
+
             }
+            else {
+                if (angular.isDefined($scope.editableObject) && $scope.editableObject.material)
+                    $scope.editableObject.material.color =  new THREE.Color("red");
+            }
+
 
 
         }
 
-        $scope.logPosition = function(event) {
+        $scope.cleanVector = function(vector) {
+            return new THREE.Vector3(parseInt(vector.x), parseInt(vector.y), parseInt(vector.z));
+        }
+//        $scope.logPosition = function(event) {
+//            var divElement = event.currentTarget;
+//            var rect = divElement.getBoundingClientRect();
+//
+//            $scope.mouse.x = ( (event.clientX - rect.left - 20)/ 1070 ) * 2 - 1;
+//            $scope.mouse.y = - ( (event.clientY - rect.top)/ 500) * 2 + 1;
+//
+//            console.log("X: " + $scope.mouse.x + " Y: " + $scope.mouse.y);
+//            var vector = new THREE.Vector3( $scope.mouse.x, $scope.mouse.y, 0.5 );
+//            $scope.projector.unprojectVector( vector, $scope.camera );
+//
+//            $scope.raycaster.set($scope.cleanVector($scope.camera.position), vector.sub($scope.cleanVector($scope.camera.position) ).normalize() );
+//
+//            var intersects = $scope.raycaster.intersectObjects( $scope.scene.children );
+//            if (intersects.length > 0){
+//                angular.forEach(intersects, function(intersect) {
+//                    if (intersect.object.type != 1){
+//                        console.log('I have found it!!!!' + new Date().getTime());
+//
+//
+//                        $scope.editableObject = intersects[0].object;
+//                        $scope.editableObject.material.color =  new THREE.Color( "blue");
+//
+//                    }
+//                })
+//
+//
+//            }
+//            else {
+//                if (angular.isDefined($scope.editableObject) && $scope.editableObject.material)
+//
+//                    $scope.editableObject.material.color =  new THREE.Color("red");
+//            }
+//
+//            console.log($scope.camera.position)
+//        }
+
+        $scope.pickObject = function(event) {
             var divElement = event.currentTarget;
             var rect = divElement.getBoundingClientRect();
 
             $scope.mouse.x = ( (event.clientX - rect.left - 20)/ 1070 ) * 2 - 1;
             $scope.mouse.y = - ( (event.clientY - rect.top)/ 500) * 2 + 1;
 
-            console.log("X: " + $scope.mouse.x + " Y: " + $scope.mouse.y);
             var vector = new THREE.Vector3( $scope.mouse.x, $scope.mouse.y, 0.5 );
             $scope.projector.unprojectVector( vector, $scope.camera );
-            var vector = new THREE.Vector3($scope.camera.position.x)
-            $scope.raycaster.set($scope.cleanVector($scope.camera.position), vector.sub(cleanVector($scope.camera.position) ).normalize() );
+
+            $scope.raycaster.set($scope.cleanVector($scope.camera.position), vector.sub($scope.cleanVector($scope.camera.position) ).normalize() );
 
             var intersects = $scope.raycaster.intersectObjects( $scope.scene.children );
+
             if (intersects.length > 0){
                 angular.forEach(intersects, function(intersect) {
                     if (intersect.object.type != 1){
                         console.log('I have found it!!!!' + new Date().getTime());
-
-
                         $scope.editableObject = intersects[0].object;
-                        $scope.editableObject.material.color =  new THREE.Color( "blue");
-
+                        $scope.editableObject.material = $scope.selectedMaterial;
                     }
                 })
-
-
             }
             else {
-                if (angular.isDefined($scope.editableObject))
-                    $scope.editableObject.material.color =  new THREE.Color("red");
+                if (angular.isDefined($scope.editableObject) && $scope.editableObject.material) {
+                    if ($scope.editableObject.isType == "Sphere")
+                        $scope.editableObject.material = $scope.sphereMaterial;
+                    else
+                    $scope.editableObject.material = $scope.basicMaterial;
+
+                }
+
             }
 
-            console.log($scope.camera.position)
+
+
         }
 
-        $scope.cleanVector = function(vector) {
-            return new THREE.Vector3(parseInt(vector.x), parseInt(vector.y), parseInt(vector.z));
-        }
+
 
     })
 

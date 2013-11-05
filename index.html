@@ -164,24 +164,76 @@
 
                                 <div ng-show="editableObject">
                                     <div class="form-group">
-                                        <label class="col-sm-2 control-label">X position</label>
-                                        <div class="col-sm-10">
+                                        <label class="col-sm-4 control-label">X position</label>
+                                        <div class="col-sm-8">
                                             <input ng-model="editableObject.position.x" type="range" min="-1000" max="1000"><input type="text" ng-model="editableObject.position.x"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="col-sm-2 control-label">Y position</label>
-                                        <div class="col-sm-10">
+                                        <label class="col-sm-4 control-label">Y position</label>
+                                        <div class="col-sm-8">
                                             <input ng-model="editableObject.position.y" type="range" min="-1000" max="1000"><input type="text" ng-model="editableObject.position.y"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="col-sm-2 control-label">Z position</label>
-                                        <div class="col-sm-10">
+                                        <label class="col-sm-4 control-label">Z position</label>
+                                        <div class="col-sm-8">
                                             <input ng-model="editableObject.position.z" type="range" min="-1000" max="1000"><input type="text" ng-model="editableObject.position.z"/>
                                         </div>
                                     </div>
+
+
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Rotate</label>
+                                        <div class="col-sm-8">
+                                            <input type="radio" name="rotating"  ng-model="editableObject.rotateType" value="cont">Continuous</input>
+                                            <input type="radio" name="rotating"  ng-model="editableObject.rotateType" value="stat">Stationary</input>
+                                        </div>
+                                    </div>
+
+                                    <div ng-show="editableObject.rotateType == 'stat'">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">X-axis</label>
+                                            <div class="col-sm-8">
+                                                <input ng-model="editableObject.rotation.x" type="range" min="-1" max="1" step="0.001">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Y-axis</label>
+                                            <div class="col-sm-8">
+                                                <input ng-model="editableObject.rotation.y" type="range" min="-1" max="1" step="0.001">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Z-axis</label>
+                                            <div class="col-sm-8">
+                                                <input ng-model="editableObject.rotation.z" type="range" min="-1" max="1" step="0.001">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div ng-show="editableObject.rotateType = 'cont'">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">X-axis</label>
+                                            <div class="col-sm-8">
+                                                <input ng-model="editableObject.rotationXAmount" type="range" min="-1" max="1" step="0.001">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Y-axis</label>
+                                            <div class="col-sm-8">
+                                                <input ng-model="editableObject.rotationYAmount" type="range" min="-1" max="1" step="0.001">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Z-axis</label>
+                                            <div class="col-sm-8">
+                                                <input ng-model="editableObject.rotationZAmount" type="range" min="-1" max="1" step="0.001">
+                                            </div>
+                                        </div>
+
+                                    </div>
                                 </div>
+
 
                             </div>
                         </div>
@@ -253,7 +305,7 @@
                     </div>
                 </div>
             </div>
-            <div id="mainDrawLocation" class="table-bordered col-lg-9" ng-mousedown="test($event)" ng-mousemove="logPosition($event)" style="height:900"></div>
+            <div id="mainDrawLocation" class="table-bordered col-lg-9" ng-mousedown="pickObject($event)" ng-mousemove="logPosition($event)" style="height:900"></div>
         </div>
 
 
