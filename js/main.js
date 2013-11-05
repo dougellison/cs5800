@@ -10,6 +10,9 @@ angular.module('mainApp', [])
         $scope.objectTypes.push({name: 'Cube'},{name: 'Sphere'});
         $scope.selectedObjectType = 'Cube';
 
+
+        $scope.objects = [];
+        $scope.objectCounter = 0;
         // This is the main init of the ThreeJS library.  It sets up the scene / camera and adds the objects
         $scope.initCanvas = function() {
 
@@ -99,15 +102,15 @@ angular.module('mainApp', [])
 
 
         $scope.$watch('camera.position.x', function(newValue) {
-            if (angular.isDefined(newValue))
+            if (angular.isDefined(newValue) && $scope.lookAt000 === true)
                 $scope.camera.lookAt( new THREE.Vector3( 0,0, 0 ) );
         })
         $scope.$watch('camera.position.y', function(newValue) {
-            if (angular.isDefined(newValue))
+            if (angular.isDefined(newValue) && $scope.lookAt000 === true)
                 $scope.camera.lookAt( new THREE.Vector3( 0,0, 0 ) );
         })
         $scope.$watch('camera.position.z', function(newValue) {
-            if (angular.isDefined(newValue))
+            if (angular.isDefined(newValue) && $scope.lookAt000 === true)
                 $scope.camera.lookAt( new THREE.Vector3( 0,0, 0 ) );
         })
 
@@ -148,6 +151,8 @@ angular.module('mainApp', [])
         $scope.addObject = function() {
             if ($scope.selectedObjectType == 'Cube')
                 $scope.addCube();
+            else if ($scope.selectedObjectType == 'Sphere')
+                $scope.addSphere();
         }
 
         $scope.addCube = function() {
@@ -161,12 +166,39 @@ angular.module('mainApp', [])
 //
 //            }
 //
-            var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors, overdraw: 0.5 } );
+            var material = new THREE.MeshBasicMaterial( { color: 'red'} );
 //
             var cube = new THREE.Mesh( geometry, material );
             cube.position.y = 150;
+            cube.geometry.dynamic = true
             $scope.scene.add( cube );
+            $scope.objects.push({id: $scope.objectCounter, name: 'Cube', data: cube});
+            $scope.objectCounter++;
+
         }
+
+        $scope.addSphere = function() {
+
+            // create a new mesh with sphere geometry -
+            var sphereGeometry = new THREE.SphereGeometry($scope.radius, $scope.segments, $scope.rings);
+            var material = new THREE.MeshBasicMaterial({color: 'blue'});
+            var sphere = new THREE.Mesh(sphereGeometry, material);
+            sphere.geometry.dynamic = true;
+            $scope.scene.add(sphere);
+            $scope.objects.push({id:$scope.objectCounter, name: 'Sphere', data: sphere});
+            $scope.objectCounter++;
+        }
+
+        $scope.$watch('selectedObject', function(newValue) {
+            if (!angular.isDefined(newValue))
+                return;
+
+            angular.forEach($scope.objects, function(localObject) {
+                if (localObject.id == newValue)
+                    $scope.editableObject = localObject.data;
+                    $scope.editableObjectId = newValue;
+            })
+        })
 
 
 

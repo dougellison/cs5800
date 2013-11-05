@@ -83,12 +83,11 @@
                     <div id="collapseTwo" class="panel-collapse collapse in">
                         <div class="panel-body" ng-init="objectAction = 'Add'">
 
-                            <button ng-click="objectAction = 'Add'">Add</button>
-                            <button ng-click="objectAction = 'Edit'">Edit / Remove</button>
+                            <input type="radio" name="objectAction" ng-model="objectAction" value="Add">Add</input>
+                            <input type="radio" name="objectAction" ng-model="objectAction" value= "EditRemove">Edit or Remove</input>
 
 
-
-
+                            <hr />
                             <div ng-show="objectAction == 'Add'" class="form-horizontal">
                                 <div class="form-group">
 
@@ -105,19 +104,19 @@
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">X</label>
                                             <div class="col-sm-10">
-                                                <input type="text" ng-model="$parent.xValue" />
+                                                <input type="text" ng-model="$parent.xValue" ng-init="$parent.xValue = 200" />
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">Y</label>
                                             <div class="col-sm-10">
-                                                <input type="text" ng-model="$parent.yValue" ng-init="yValue = 200"/>
+                                                <input type="text" ng-model="$parent.yValue" ng-init="$parent.yValue = 200"/>
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">Z</label>
                                             <div class="col-sm-10">
-                                                <input type="text" ng-model="$parent.zValue" ng-init="zValue = 200"/>
+                                                <input type="text" ng-model="$parent.zValue" ng-init="$parent.zValue = 200"/>
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -127,8 +126,63 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div ng-switch-when="Sphere">Sphere</div>
+                                    <div ng-switch-when="Sphere">
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">Radius</label>
+                                            <div class="col-sm-10">
+                                                <input type="text" ng-model="$parent.radius" ng-init="$parent.radius = 200" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">Segments</label>
+                                            <div class="col-sm-10">
+                                                <input type="text" ng-model="$parent.segments" ng-init="$parent.segments = 200"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">Rings</label>
+                                            <div class="col-sm-10">
+                                                <input type="text" ng-model="$parent.rings" ng-init="$parent.rings = 200"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">Click Save</label>
+                                            <div class="col-sm-10">
+                                                <button ng-click="addObject()">Insert Object</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
                                 </div>
+                            </div>
+
+                            <div ng-show="objectAction == 'EditRemove'">
+                                <select ng-model="selectedObject">
+                                    <option ng-repeat="object in objects" value="{{object.id}}">{{object.name}}</option>
+                                </select>
+
+                                <div ng-show="editableObject">
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">X position</label>
+                                        <div class="col-sm-10">
+                                            <input ng-model="editableObject.position.x" type="range" min="-1000" max="1000"><input type="text" ng-model="editableObject.position.x"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Y position</label>
+                                        <div class="col-sm-10">
+                                            <input ng-model="editableObject.position.y" type="range" min="-1000" max="1000"><input type="text" ng-model="editableObject.position.y"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Z position</label>
+                                        <div class="col-sm-10">
+                                            <input ng-model="editableObject.position.z" type="range" min="-1000" max="1000"><input type="text" ng-model="editableObject.position.z"/>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -144,6 +198,13 @@
                     <div id="collapseThree" class="panel-collapse collapse">
                         <div class="panel-body">
                             <form class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Look at (0,0,0)</label>
+                                    <div class="col-sm-9">
+                                        <input ng-model="lookAt000" type="checkbox" ng-init="lookAt000 = true">
+                                    </div>
+                                </div>
+
                                 <div class="form-group">
                                     <label class="col-sm-3 control-label">Move X </label>
                                     <div class="col-sm-9">
