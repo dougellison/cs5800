@@ -6,30 +6,33 @@
 angular.module('mainApp', [])
     .controller('main', function($scope) {
 
+        // There is a drop down menu that allows different objectType selections.  This is setting up that dropdown
         $scope.objectTypes = [];
         $scope.objectTypes.push({name: 'Cube'},{name: 'Sphere'});
+        
+        // Default to Cube Type
         $scope.selectedObjectType = 'Cube';
 
-
+        // The list of objects that have been added to the rendering.        
         $scope.objects = [];
+        
+        // Start with a default empty with an id of -1 to recognize its the default
         $scope.objects.push({id:-1, name: 'Select an Object', data: {}});
         $scope.objectCounter = 0;
-
         $scope.selectedObject = $scope.objects[0];
 
+        // The below are used for object picking in 3D space.
         $scope.raycaster = new THREE.Raycaster();
         $scope.projector = new THREE.Projector();
         $scope.mouse = new THREE.Vector2()
 
-        $scope.cameraRepresentation = {};
-
-
+        // These are the two different basic meshes used for display for objects
         $scope.basicMaterial = new THREE.MeshNormalMaterial( { shading: THREE.SmoothShading, overdraw: true } )
         $scope.selectedMaterial = new THREE.MeshBasicMaterial( { color: 'red'} );
 
 
 
-            // This is the main init of the ThreeJS library.  It sets up the scene / camera and adds the objects
+        // This is the main init of the ThreeJS library.  It sets up the scene / camera and adds the objects
         $scope.initCanvas = function() {
 
             var camera, scene, renderer, controls;
@@ -56,22 +59,19 @@ angular.module('mainApp', [])
             camera.position.set( 0, 1000, 100 );
             camera.lookAt( new THREE.Vector3( 0,0, 0 ) );
 
-            // Set the depth where the camera starts. This can be changed with the user control zoom level
-            //camera.position.z = 400;
-
             // This creates a Scene.  ThreeJS has a specific concept of a Scene which is a container for all things
             // in the viewable space.  Later meshes / camera will be added to the scene.
             scene = new THREE.Scene();
 
+            // Creates a line grid
             var grid = new THREE.GridHelper( 600, 30 );
             scene.add(grid);
 
+            // Add a simple light source
             var light = new THREE.DirectionalLight( 0xffffff, 2 );
             light.position.set( 500, 500, 500 );
 
             scene.add(light);
-
-
 
             // This is loading a panoramic image taken with a Nexus 4 360 sphere application. It creates a large
             // 4000x4000 single image stitched together from multiple camera shots.
@@ -92,9 +92,6 @@ angular.module('mainApp', [])
             $scope.scene = scene;
             $scope.camera = camera;
             $scope.renderer = renderer;
-
-//            controls = new THREE.OrbitControls( camera );
-//            controls.addEventListener( 'change', $scope.renderer );
 
         }
 
@@ -161,12 +158,6 @@ angular.module('mainApp', [])
             $scope.camera.updateProjectionMatrix();
         })
 
-//        $scope.$watch('camera.near', function(newValue){
-//            if (angular.isDefined(newValue)) {
-//                $scope.camera.near =
-//                $scope.camera.updateProjectionMatrix();
-//            }
-//        })
         $scope.$watch('fovString', function(newValue) {
             if (angular.isDefined(newValue)) {
                 $scope.camera.fov = parseFloat(newValue);
@@ -202,19 +193,12 @@ angular.module('mainApp', [])
                 $scope.addSphere();
         }
 
+        // Adds a cube and adds it to the object list.
         $scope.addCube = function() {
             var geometry = new THREE.CubeGeometry( $scope.xValue, $scope.yValue, $scope.zValue );
 
-//            for ( var i = 0; i < geometry.faces.length; i += 2 ) {
-//
-//                var hex = Math.random() * 0xffffff;
-//                geometry.faces[ i ].color.setHex( hex );
-//                geometry.faces[ i + 1 ].color.setHex( hex );
-//
-//            }
-//
             var material = new THREE.MeshBasicMaterial( { color: 'red'} );
-//
+
             var cube = new THREE.Mesh( geometry, $scope.basicMaterial );
             cube.position.y = 150;
             cube.geometry.dynamic = true
@@ -226,6 +210,7 @@ angular.module('mainApp', [])
 
         }
 
+        // Adds a sphere and adds it to the object list.
         $scope.addSphere = function() {
 
             // create a new mesh with sphere geometry -
@@ -257,76 +242,13 @@ angular.module('mainApp', [])
             })
         })
 
-//        $scope.test = function(event) {
-//
-//            var divElement = event.currentTarget;
-//            var rect = divElement.getBoundingClientRect();
-//
-//            $scope.mouse.x = ( (event.clientX - rect.left)/ 1070 ) * 2 - 1;
-//            $scope.mouse.y = - ( (event.clientY - rect.top)/ 500) * 2 + 1;
-//
-//            console.log("X: " + $scope.mouse.x + " Y: " + $scope.mouse.y);
-//            var vector = new THREE.Vector3( $scope.mouse.x, $scope.mouse.y, 0.5 );
-//            $scope.camera.updateProjectionMatrix();
-//            $scope.projector.unprojectVector( vector, $scope.camera );
-//
-//            $scope.raycaster.set($scope.cleanVector($scope.camera.position), vector.sub($scope.cleanVector($scope.camera.position) ).normalize() );
-//
-//            var intersects = $scope.raycaster.intersectObjects( $scope.scene.children );
-//            if (intersects.length > 0){
-//                $scope.editableObject = intersects[0];
-//                $scope.editableObject.material.color =  new THREE.Color( "blue");
-//
-//            }
-//            else {
-//                if (angular.isDefined($scope.editableObject) && $scope.editableObject.material)
-//                    $scope.editableObject.material.color =  new THREE.Color("red");
-//            }
-//
-//
-//
-//        }
 
         $scope.cleanVector = function(vector) {
             return new THREE.Vector3(parseInt(vector.x), parseInt(vector.y), parseInt(vector.z));
         }
-//        $scope.logPosition = function(event) {
-//            var divElement = event.currentTarget;
-//            var rect = divElement.getBoundingClientRect();
-//
-//            $scope.mouse.x = ( (event.clientX - rect.left - 20)/ 1070 ) * 2 - 1;
-//            $scope.mouse.y = - ( (event.clientY - rect.top)/ 500) * 2 + 1;
-//
-//            console.log("X: " + $scope.mouse.x + " Y: " + $scope.mouse.y);
-//            var vector = new THREE.Vector3( $scope.mouse.x, $scope.mouse.y, 0.5 );
-//            $scope.projector.unprojectVector( vector, $scope.camera );
-//
-//            $scope.raycaster.set($scope.cleanVector($scope.camera.position), vector.sub($scope.cleanVector($scope.camera.position) ).normalize() );
-//
-//            var intersects = $scope.raycaster.intersectObjects( $scope.scene.children );
-//            if (intersects.length > 0){
-//                angular.forEach(intersects, function(intersect) {
-//                    if (intersect.object.type != 1){
-//                        console.log('I have found it!!!!' + new Date().getTime());
-//
-//
-//                        $scope.editableObject = intersects[0].object;
-//                        $scope.editableObject.material.color =  new THREE.Color( "blue");
-//
-//                    }
-//                })
-//
-//
-//            }
-//            else {
-//                if (angular.isDefined($scope.editableObject) && $scope.editableObject.material)
-//
-//                    $scope.editableObject.material.color =  new THREE.Color("red");
-//            }
-//
-//            console.log($scope.camera.position)
-//        }
 
+        // This method is called when a user clicks on the div element where webGl is rendering. 
+        // It uses raycasting to find where the user clicks and the intersecting object.  
         $scope.pickObject = function(event) {
             var divElement = event.currentTarget;
             var rect = divElement.getBoundingClientRect();
@@ -341,10 +263,12 @@ angular.module('mainApp', [])
 
             var intersects = $scope.raycaster.intersectObjects( $scope.scene.children );
 
+            // If there is a length then the user has clicked on something.
             if (intersects.length > 0){
                 angular.forEach(intersects, function(intersect) {
+                    // User could have clicked on grid and we don't want that so just check type and make sure its not grid.
                     if (intersect.object.type != 1){
-                        console.log('I have found it!!!!' + new Date().getTime());
+                        //console.log('I have found it!!!!' + new Date().getTime());
 
                         $scope.deSelect($scope.editableObject, false);
                         angular.forEach($scope.objects, function(localObject) {
