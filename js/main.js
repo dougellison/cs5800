@@ -1,6 +1,15 @@
 'use strict';
 
-
+//TODO: Things to implement.  Order of importance / whatever
+/**
+ * 1. Import / Export of Objects
+ * 2. Fix selected mesh to be something like wireframe
+ * 3. Add true camera rotation around a point.
+ * 4. Add drag rotation for the camera.
+ * 5. Add some kind of recordable rotation
+ * 6. Add more meshes
+ * 7.
+ */
 // Declare app level module which has no dependencies.
 // AngjularJS is a client side javascript MVC.
 angular.module('mainApp', [])
@@ -25,16 +34,18 @@ angular.module('mainApp', [])
 
 
         $scope.basicMaterial = new THREE.MeshNormalMaterial( { shading: THREE.SmoothShading, overdraw: true } )
-        $scope.selectedMaterial = new THREE.MeshBasicMaterial( { color: 'red'} );
+        $scope.selectedMaterial = new THREE.MeshBasicMaterial( {wireframe: true, color: 'red'} );
 
 
+        $scope.sayHello = function(keyEvent) {
+            alert('Hi there');
+        }
 
             // This is the main init of the ThreeJS library.  It sets up the scene / camera and adds the objects
         $scope.initCanvas = function() {
 
             var camera, scene, renderer, controls;
             var mesh;
-
 
             // This project is going to be using WebGL so this requests a WebGLRenderer
             renderer = new THREE.WebGLRenderer();
@@ -55,6 +66,24 @@ angular.module('mainApp', [])
             $scope.farString = 3000;
             camera.position.set( 0, 1000, 100 );
             camera.lookAt( new THREE.Vector3( 0,0, 0 ) );
+
+
+
+            var divElement = $('#mainDrawLocation');
+//            var divElement = document.getElementById('mainDrawLocation');
+            // This includes trackBallControls.  Its an additional library that can be included that is provided with but separately from ThreeJS
+            // It handles rotation and zoom in and out based purely on mouse controls.
+            var controls = new THREE.TrackballControls(camera, divElement);
+            controls.rotateSpeed = 1.0;
+            controls.zoomSpeed = 1.2;
+            controls.panSpeed = 0.8;
+            controls.noZoom = false;
+            controls.noPan = false;
+            controls.staticMoving = true;
+            controls.dynamicDampingFactor = 0.3;
+
+            $scope.controls = controls;
+
 
             // Set the depth where the camera starts. This can be changed with the user control zoom level
             //camera.position.z = 400;
@@ -107,6 +136,8 @@ angular.module('mainApp', [])
             // callbacks that will get called so that the drawing continuously updates without blocking
             requestAnimationFrame( animate );
 
+            $scope.controls.enabled = true;
+            $scope.controls.update();
 
             angular.forEach($scope.objects, function(localObject) {
                 if (localObject.data.rotateType === 'cont') {

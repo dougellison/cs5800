@@ -98,6 +98,7 @@
                                         </select>
                                     </div>
                                 </div>
+                                <input ng-keydown="sayHello()" value="moo"/>
 
                                 <div ng-switch="selectedObjectType">
                                     <div ng-switch-when="Cube">
@@ -305,7 +306,7 @@
                     </div>
                 </div>
             </div>
-            <div id="mainDrawLocation" class="table-bordered col-lg-9" ng-mousedown="pickObject($event)" ng-mousemove="logPosition($event)" style="height:900"></div>
+            <div id="mainDrawLocation" class="table-bordered col-lg-9" ng-mousedown="pickObject($event)" ng-mousemove="logPosition($event)" style="height:900; background-color: #000000"></div>
         </div>
 
 
