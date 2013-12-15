@@ -32,6 +32,7 @@ angular.module('mainApp', [])
 
         $scope.cameraRepresentation = {};
 
+		$scope.offset = new THREE.Vector3()
 
         $scope.basicMaterial = new THREE.MeshNormalMaterial( { shading: THREE.SmoothShading, overdraw: true } )
         $scope.selectedMaterial = new THREE.MeshBasicMaterial( {wireframe: true, color: 'red'} );
@@ -61,19 +62,26 @@ angular.module('mainApp', [])
 
             // This creates a camera that is controlled by the user
             //camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
+			
+			//camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
+			
             camera = new THREE.PerspectiveCamera( 70, 1070 / 500, 1, 10000 );
             $scope.nearString = 1;
             $scope.farString = 3000;
-            camera.position.set( 0, 1000, 100 );
-            camera.lookAt( new THREE.Vector3( 0,0, 0 ) );
+			//camera.position.z = 1000;
+            camera.position.set( 0, 1000, 100);
+            //camera.lookAt( new THREE.Vector3( 0,0, 0 ) );
 
 
 
             var divElement = $('#mainDrawLocation');
+			divElement.on('mousewheel')
 //            var divElement = document.getElementById('mainDrawLocation');
             // This includes trackBallControls.  Its an additional library that can be included that is provided with but separately from ThreeJS
             // It handles rotation and zoom in and out based purely on mouse controls.
-            var controls = new THREE.TrackballControls(camera, divElement);
+			
+            //var controls = new THREE.TrackballControls(camera);
+			var controls = new THREE.TrackballControls(camera, divElement);
             controls.rotateSpeed = 1.0;
             controls.zoomSpeed = 1.2;
             controls.panSpeed = 0.8;
@@ -81,9 +89,9 @@ angular.module('mainApp', [])
             controls.noPan = false;
             controls.staticMoving = true;
             controls.dynamicDampingFactor = 0.3;
-
+			
             $scope.controls = controls;
-
+			$scope.controls.enabled = true;
 
             // Set the depth where the camera starts. This can be changed with the user control zoom level
             //camera.position.z = 400;
@@ -92,7 +100,7 @@ angular.module('mainApp', [])
             // in the viewable space.  Later meshes / camera will be added to the scene.
             scene = new THREE.Scene();
 
-            var grid = new THREE.GridHelper( 600, 30 );
+            var grid = new THREE.GridHelper( 1000, 40 );
             scene.add(grid);
 
             var light = new THREE.DirectionalLight( 0xffffff, 2 );
@@ -100,6 +108,10 @@ angular.module('mainApp', [])
 
             scene.add(light);
 
+			//$scope.plane = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000, 8, 8 ), new THREE.MeshBasicMaterial( { color: 'red', wireframe: true } ) );
+			$scope.plane = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true, wireframe: true } ) );
+			$scope.plane.visible = false;
+			scene.add( $scope.plane );
 
 
             // This is loading a panoramic image taken with a Nexus 4 360 sphere application. It creates a large
@@ -136,7 +148,6 @@ angular.module('mainApp', [])
             // callbacks that will get called so that the drawing continuously updates without blocking
             requestAnimationFrame( animate );
 
-            $scope.controls.enabled = true;
             $scope.controls.update();
 
             angular.forEach($scope.objects, function(localObject) {
@@ -172,20 +183,34 @@ angular.module('mainApp', [])
 
 
         $scope.$watch('camera.position.x', function(newValue) {
+		
             if (!angular.isDefined(newValue))
                 return;
+				
+			$scope.camera.position.x = Math.round($scope.camera.position.x);
             if ($scope.lookAt000 === true)
                 $scope.camera.lookAt( new THREE.Vector3( 0,0, 0 ) );
 
             $scope.camera.updateProjectionMatrix();
         })
         $scope.$watch('camera.position.y', function(newValue) {
+		
+			if (!angular.isDefined(newValue))
+				return;
+		
+			$scope.camera.position.y = Math.round($scope.camera.position.y);
+		
             if (angular.isDefined(newValue) && $scope.lookAt000 === true)
                 $scope.camera.lookAt( new THREE.Vector3( 0,0, 0 ) );
 
             $scope.camera.updateProjectionMatrix();
         })
         $scope.$watch('camera.position.z', function(newValue) {
+			
+			if (!angular.isDefined(newValue))
+				return;
+				
+			$scope.camera.position.z = Math.round($scope.camera.position.z);
             if (angular.isDefined(newValue) && $scope.lookAt000 === true)
                 $scope.camera.lookAt( new THREE.Vector3( 0,0, 0 ) );
 
@@ -236,17 +261,8 @@ angular.module('mainApp', [])
         $scope.addCube = function() {
             var geometry = new THREE.CubeGeometry( $scope.xValue, $scope.yValue, $scope.zValue );
 
-//            for ( var i = 0; i < geometry.faces.length; i += 2 ) {
-//
-//                var hex = Math.random() * 0xffffff;
-//                geometry.faces[ i ].color.setHex( hex );
-//                geometry.faces[ i + 1 ].color.setHex( hex );
-//
-//            }
-//
-            var material = new THREE.MeshBasicMaterial( { color: 'red'} );
-//
             var cube = new THREE.Mesh( geometry, $scope.basicMaterial );
+			
             cube.position.y = 150;
             cube.geometry.dynamic = true
             cube.rotateType = 'stat';
@@ -319,44 +335,49 @@ angular.module('mainApp', [])
 //        }
 
         $scope.cleanVector = function(vector) {
-            return new THREE.Vector3(parseInt(vector.x), parseInt(vector.y), parseInt(vector.z));
+            return new THREE.Vector3(parseInt(Math.round(vector.x)), parseInt(Math.round(vector.y)), parseInt(Math.round(vector.z)));
         }
-//        $scope.logPosition = function(event) {
-//            var divElement = event.currentTarget;
-//            var rect = divElement.getBoundingClientRect();
-//
-//            $scope.mouse.x = ( (event.clientX - rect.left - 20)/ 1070 ) * 2 - 1;
-//            $scope.mouse.y = - ( (event.clientY - rect.top)/ 500) * 2 + 1;
-//
-//            console.log("X: " + $scope.mouse.x + " Y: " + $scope.mouse.y);
-//            var vector = new THREE.Vector3( $scope.mouse.x, $scope.mouse.y, 0.5 );
-//            $scope.projector.unprojectVector( vector, $scope.camera );
-//
-//            $scope.raycaster.set($scope.cleanVector($scope.camera.position), vector.sub($scope.cleanVector($scope.camera.position) ).normalize() );
-//
-//            var intersects = $scope.raycaster.intersectObjects( $scope.scene.children );
-//            if (intersects.length > 0){
-//                angular.forEach(intersects, function(intersect) {
-//                    if (intersect.object.type != 1){
-//                        console.log('I have found it!!!!' + new Date().getTime());
-//
-//
-//                        $scope.editableObject = intersects[0].object;
-//                        $scope.editableObject.material.color =  new THREE.Color( "blue");
-//
+		
+		$scope.logPosition = function(event) {
+            var divElement = event.currentTarget;
+            var rect = divElement.getBoundingClientRect();
+
+            $scope.mouse.x = ( (event.clientX - rect.left - 20)/ 1070 ) * 2 - 1;
+            $scope.mouse.y = - ( (event.clientY - rect.top)/ 500) * 2 + 1;
+
+            //console.log("X: " + $scope.mouse.x + " Y: " + $scope.mouse.y);
+            var vector = new THREE.Vector3( $scope.mouse.x, $scope.mouse.y, 0.5 );
+            $scope.projector.unprojectVector( vector, $scope.camera );
+
+            $scope.raycaster.set($scope.cleanVector($scope.camera.position), vector.sub($scope.cleanVector($scope.camera.position) ).normalize() );
+
+			// We only want to consider children that have been added by the system and not by setting up background objects such as the grid / lightsource.
+			var validChildren = _.filter($scope.scene.children, function(child){ return angular.isDefined(child.listID)});
+
+            var intersects = $scope.raycaster.intersectObjects( validChildren );
+			
+			if (angular.isDefined($scope.selectedObject) && $scope.selectedObject.id != -1 && $scope.enableDragging) {
+
+				var intersects = $scope.raycaster.intersectObject( $scope.plane );
+				$scope.overObject.position.copy( intersects[ 0 ].point.sub( $scope.offset ) );
+				return;
+
+			}
+			
+            if (intersects.length > 0){
+  //              _.any(intersects, function(intersect) {
+//                    if (angular.isDefined(intersect.object.listID)){
+                        console.log('I have found it!!!!');
+						$scope.overObject = intersects[0].object;
+						$scope.plane.position.copy( $scope.overObject.position );
+						$scope.plane.lookAt( $scope.camera.position );
 //                    }
 //                })
-//
-//
-//            }
-//            else {
-//                if (angular.isDefined($scope.editableObject) && $scope.editableObject.material)
-//
-//                    $scope.editableObject.material.color =  new THREE.Color("red");
-//            }
-//
-//            console.log($scope.camera.position)
-//        }
+				
+				// This means the cursor has been placed over an object.  Need to update plane
+            }
+            
+        }
 
         $scope.pickObject = function(event) {
             var divElement = event.currentTarget;
@@ -369,23 +390,45 @@ angular.module('mainApp', [])
             $scope.projector.unprojectVector( vector, $scope.camera );
 
             $scope.raycaster.set($scope.cleanVector($scope.camera.position), vector.sub($scope.cleanVector($scope.camera.position) ).normalize() );
-
-            var intersects = $scope.raycaster.intersectObjects( $scope.scene.children );
+			
+			// There are ThreeJS elements that we don't want to pick from.  So I exclude those.  The criteria I use is if the object has a listID.  This is unique to my code and added upon object creation
+			// if this attribute is not present it is not a selectable element for picking.
+			var validChildren = _.filter($scope.scene.children, function(child){ return angular.isDefined(child.listID)});
+			
+			// Gets the list of objects that could possibly be selected.
+            var intersects = $scope.raycaster.intersectObjects( validChildren);
 
             if (intersects.length > 0){
-                angular.forEach(intersects, function(intersect) {
-                    if (intersect.object.type != 1){
-                        console.log('I have found it!!!!' + new Date().getTime());
+                _.any(intersects, function(intersect) {
+					// If we've found it lets say where we are.
+					console.log('I have found it!!!!'  + 'X: ' + $scope.mouse.x + ' Y: ' + $scope.mouse.y);
 
-                        $scope.deSelect($scope.editableObject, false);
-                        angular.forEach($scope.objects, function(localObject) {
-                            if (localObject.id == intersect.object.listID)
-                                $scope.selectedObject = localObject;
-                        })
-                        $scope.editableObject = intersects[0].object;
-                        $scope.editableObject.material = $scope.selectedMaterial;
-                    }
+					// This removes selection for any other nodes that might have been selected in the past.
+					$scope.deSelect($scope.editableObject, false);
+					
+					
+					if (_.any($scope.objects, function(localObject) {
+						// This means the ThreeJS object has been found in my local object list.  Select this object.
+						if (localObject.id == intersect.object.listID) {
+							console.log("Found in the list as well");
+							$scope.selectedObject = localObject;
+							$scope.enableDragging = true;
+							return true;
+						}
+					})) {
+						// This means an object was found and selected.  So we copy the ThreeJS object to $scope.editableObject and then set the material for selected objects.
+						$scope.editableObject = intersects[0].object;
+						$scope.editableObject.material = $scope.selectedMaterial;
+					}
+					
                 })
+				
+				// If an object was found then we need to calculate the offset using the plane.  The plain gets updated each time an object is moused over.
+				if ($scope.selectedObject && $scope.selectedObject.id != -1) {
+					$scope.controls.enabled = false;
+					var intersectsPlane = $scope.raycaster.intersectObject( $scope.plane );
+					$scope.offset.copy( intersectsPlane[ 0 ].point ).sub( $scope.plane.position );
+				}
             }
             else {
                 $scope.deSelect($scope.editableObject);
@@ -404,6 +447,13 @@ angular.module('mainApp', [])
             if (clearDropdown)
                 $scope.selectedObject = $scope.objects[0];
         }
+		
+		// This method gets called on a mouse up event.  If the user has released the mouse even if we have a selected object I want to re-enabled the dragging controls for rotation.
+		// Also want to set a flag stating that the selected object although selected is no longer valid for dragging.
+		$scope.enableControls = function() {
+			$scope.enableDragging = false;
+			$scope.controls.enabled = true;
+		}
 
 
 

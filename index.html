@@ -76,7 +76,7 @@
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-                                Objects
+                                Objectss
                             </a>
                         </h4>
                     </div>
@@ -98,26 +98,25 @@
                                         </select>
                                     </div>
                                 </div>
-                                <input ng-keydown="sayHello()" value="moo"/>
-
+                                
                                 <div ng-switch="selectedObjectType">
                                     <div ng-switch-when="Cube">
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">X</label>
                                             <div class="col-sm-10">
-                                                <input type="text" ng-model="$parent.xValue" ng-init="$parent.xValue = 50" />
+                                                <input type="text" ng-model="$parent.xValue" ng-init="$parent.xValue = 150" />
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">Y</label>
                                             <div class="col-sm-10">
-                                                <input type="text" ng-model="$parent.yValue" ng-init="$parent.yValue = 50"/>
+                                                <input type="text" ng-model="$parent.yValue" ng-init="$parent.yValue = 150"/>
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">Z</label>
                                             <div class="col-sm-10">
-                                                <input type="text" ng-model="$parent.zValue" ng-init="$parent.zValue = 50"/>
+                                                <input type="text" ng-model="$parent.zValue" ng-init="$parent.zValue = 150"/>
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -306,7 +305,7 @@
                     </div>
                 </div>
             </div>
-            <div id="mainDrawLocation" class="table-bordered col-lg-9" ng-mousedown="pickObject($event)" ng-mousemove="logPosition($event)" style="height:900; background-color: #000000"></div>
+            <div id="mainDrawLocation" class="table-bordered col-lg-9" ng-mousedown="pickObject($event)" ng-mouseup="enableControls()" ng-mousemove="logPosition($event)" style="height:900; background-color: #000000"></div>
         </div>
 
 
@@ -348,6 +347,7 @@
 	<script src="./lib/js/three.min.js"></script> 
 	<script src="lib/js/angular/angular-all.min.js" ></script>
 	<script src="lib/js/threejs/stats.min.js" ></script>
+	<script src="lib/js/underscore/underscore.js" ></script>
 	<script src="lib/js/threejs/TrackballControls.js" ></script>
 	<script src="lib/js/threejs/OrbitControls.js" ></script>
 
