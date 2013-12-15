@@ -3,9 +3,6 @@
 //TODO: Things to implement.  Order of importance / whatever
 /**
  * 1. Import / Export of Objects
- * 2. Fix selected mesh to be something like wireframe
- * 3. Add true camera rotation around a point.
- * 4. Add drag rotation for the camera.
  * 5. Add some kind of recordable rotation
  * 6. Add more meshes
  * 7.
@@ -258,28 +255,52 @@ angular.module('mainApp', [])
                 $scope.addSphere();
         }
 
-        $scope.addCube = function() {
-            var geometry = new THREE.CubeGeometry( $scope.xValue, $scope.yValue, $scope.zValue );
+        $scope.addCube = function(element) {
+            var geometry = {};
+			if (angular.isUndefined(element))
+				geometry = new THREE.CubeGeometry( $scope.xValue, $scope.yValue, $scope.zValue );
+			else
+				geometry = new THREE.CubeGeometry( element.geometry.width, element.geometry.height, element.geometry.depth);
 
             var cube = new THREE.Mesh( geometry, $scope.basicMaterial );
 			
-            cube.position.y = 150;
-            cube.geometry.dynamic = true
-            cube.rotateType = 'stat';
+			if (angular.isUndefined(element)) {
+				cube.position.y = 150;
+				cube.rotateType = 'stat';
+			}
+			else {
+				cube.position = new THREE.Vector3(element.position.x, element.position.y, element.position.z);
+				_.extend(cube, _.pick(element, ['rotateType', 'rotationXAmount', 'rotationYAmount', 'rotationZAmount']));
+			}
+            
+			cube.geometry.dynamic = true
             cube.listID = $scope.objectCounter;
+			cube.isType = "Cube";
             $scope.scene.add( cube );
             $scope.objects.push({id: $scope.objectCounter, name: 'Cube', data: cube});
             $scope.objectCounter++;
 
         }
 
-        $scope.addSphere = function() {
+        $scope.addSphere = function(element) {
 
-            // create a new mesh with sphere geometry -
-            var sphereGeometry = new THREE.SphereGeometry($scope.radius, $scope.segments, $scope.rings);
-            var sphere = new THREE.Mesh(sphereGeometry, $scope.sphereMaterial);
+			var sphereGeometry = {};
+			// create a new mesh with sphere geometry -
+			if (angular.isUndefined(element)) 
+				sphereGeometry = new THREE.SphereGeometry($scope.radius, $scope.segments, $scope.rings);
+			else
+				sphereGeometry = new THREE.SphereGeometry(element.geometry.radius, element.geometry.widthSegments, element.geometry.heightSegments);
+            
+			var sphere = new THREE.Mesh(sphereGeometry, $scope.sphereMaterial);
             sphere.geometry.dynamic = true;
-            sphere.rotateType = 'stat';
+			if (angular.isUndefined(element)) {
+				sphere.rotateType = 'stat';	
+			}
+			else {
+				sphere.position = new THREE.Vector3(element.position.x, element.position.y, element.position.z);
+				_.extend(sphere, _.pick(element, ['rotateType', 'rotationXAmount', 'rotationYAmount', 'rotationZAmount']));
+			}
+            
             sphere.isType = "Sphere";
             sphere.listID = $scope.objectCounter;
             $scope.scene.add(sphere);
@@ -359,7 +380,9 @@ angular.module('mainApp', [])
 			if (angular.isDefined($scope.selectedObject) && $scope.selectedObject.id != -1 && $scope.enableDragging) {
 
 				var intersects = $scope.raycaster.intersectObject( $scope.plane );
-				$scope.overObject.position.copy( intersects[ 0 ].point.sub( $scope.offset ) );
+				if (!angular.isDefined(intersects[0]))
+					return;
+				$scope.overObject.position.copy( intersects[0].point.sub( $scope.offset ) );
 				return;
 
 			}
@@ -453,6 +476,119 @@ angular.module('mainApp', [])
 		$scope.enableControls = function() {
 			$scope.enableDragging = false;
 			$scope.controls.enabled = true;
+		}
+		
+		
+		// This method gets called when a user selects to export data from the canvas.
+		$scope.performExport = function() {
+			
+			if ($scope.exportOption == 'all') {
+				// Do export for all objects
+				// I know the first item in the objects list is actually a blank place holder for the select box.  I will just splice that one out.
+				
+				$scope.exportJSON = $scope.buildExportable(_.filter($scope.objects, function(object){return object.id != -1}));
+			}
+			else {
+				// Check and make sure the user has something selected if not put a message on the export box and bail.
+				if (angular.isUndefined($scope.selectedObject) || $scope.selectedObject.id == -1) {
+					$scope.exportJSON = "Cannot export selected as there is nothing selected";
+					return;
+				}
+				
+				$scope.exportJSON = $scope.buildExportable([$scope.selectedObject]);
+				
+				
+				
+			}
+		}
+		
+		// This method takes a list of items and returns the export JSON for each item in the list.
+		$scope.buildExportable = function(exportableElements) {
+			var returnString = "";
+			
+			// We'll store each string representation in the array.  And then at the very end do a .join with a special separator | that we can parse out later.
+			var builtArray = [];
+			// This iterates over all the passed in elements and picks out the data that we care about for exporting.  Right now its position information type and a sizes.
+			_.each(exportableElements, function(element) {
+
+				var meshData = element.data;
+				// This is going to carry the object properties I care about that I will stringify at the end.
+				var objectProperties = {};
+				_.extend(objectProperties, _.pick(meshData, ['position', 'rotateType', 'rotationXAmount', 'rotationYAmount', 'rotationZAmount', 'isType']));
+				
+				var geometry = {};
+				
+				if (meshData.isType == 'Cube') {
+					// This is the case where it is a cube.
+					_.extend(geometry, _.pick(meshData.geometry, ['width', 'height', 'depth']));
+					
+					
+				}
+				else if (meshData.isType == 'Sphere') {
+					// This is the case where the element is a sphere.
+					_.extend(geometry, _.pick(meshData.geometry, ['widthSegments', 'heightSegments', 'radius']));						
+				}
+				
+				objectProperties.geometry = geometry;
+				
+				console.log(JSON.stringify(objectProperties));
+				builtArray.push(JSON.stringify(objectProperties));
+			})
+			
+			returnString = builtArray.join('|');
+			
+			
+			return returnString;
+		}
+		
+		$scope.import = function() {
+			if (angular.isUndefined($scope.importJSON) || $scope.importJSON.length < 1) {
+				alert('You must paste valid JSON into the import textarea');
+				return;
+			}
+			
+			var elements = $scope.importJSON.split('|');
+			_.each(elements, function(element){
+				var jsonObject = {};
+				try {
+					jsonObject = JSON.parse(element);
+				}
+				catch(error) {
+					alert('The following element was not valid JSON: ' + element);
+				}
+				
+				// Make sure I have a valid jsonVersion.  Its possible the user could have messed up the JSON and therefore importing would fail on parsing.
+				if (angular.isDefined(jsonObject)) {
+					if (jsonObject.isType == 'Cube') {
+						$scope.addCube(jsonObject);
+					}
+					else if (jsonObject.isType == 'Sphere') {
+						$scope.addSphere(jsonObject);
+					}
+				}
+				
+			})
+			
+		}
+		
+		// This will remove the selected object from the canvas.
+		$scope.removeObject = function() {
+		
+			// If the user doesn't have one selected just return because there is nothing to delete.
+			if (angular.isUndefined($scope.selectedObject)) 
+				return;
+				
+			var indexToRemove = 0;
+			$scope.scene.remove($scope.selectedObject.data);
+			_.any($scope.objects, function(object, index){
+				if (object.id == $scope.selectedObject.id) {
+					indexToRemove = index;
+					return true;
+				}
+			})
+			
+			$scope.objects.splice(indexToRemove, 1);
+			$scope.selectedObject = $scope.objects[0];
 		}
 
 

@@ -65,11 +65,34 @@
                             </a>
                         </h4>
                     </div>
-                    <div id="collapseOne" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            Controls for importing and exporting
-                            <input type="text" ng-keydown="{rotate()}" ng-keypress="{rotate()}"/>
-                        </div>
+                    <div id="collapseOne" class="panel-collapse collapse  in">
+                        <div class="panel-body" ng-init="importExport = 'import'">
+								<input type="radio" name="importExport" ng-model="importExport" value="import">Import</input>
+								<input type="radio" name="importExport" ng-model="importExport" value="export">Export</input>
+
+							<hr />
+							<div ng-show="importExport == 'export'" ng-init="exportOption = 'all'">
+								<input type="radio" name="exportOption" ng-model="exportOption" value="all">All</input>
+								<input type="radio" name="exportOption" ng-model="exportOption" value="selected">Selected</input>
+								<br>
+								<br>
+								
+								<button ng-click="performExport()">Export Data</button>
+									
+								<br>
+								<br>
+								Exported Content Available below:
+								<br>
+								<textarea ng-model="exportJSON" rows="10" cols="40"></textarea>
+							</div>
+							<div ng-show="importExport == 'import'">
+								<button ng-click="import()">Import</button>
+								<br>
+								<br>
+								<textarea placeholder="Paste your object in JSON here" ng-model="importJSON" rows="10" cols="40"></textarea>
+							</div>
+
+						</div>
                     </div>
                 </div>
                 <div class="panel panel-default">
@@ -80,7 +103,7 @@
                             </a>
                         </h4>
                     </div>
-                    <div id="collapseTwo" class="panel-collapse collapse in">
+                    <div id="collapseTwo" class="panel-collapse collapse">
                         <div class="panel-body" ng-init="objectAction = 'Add'">
 
                             <input type="radio" name="objectAction" ng-model="objectAction" value="Add">Add</input>
@@ -120,7 +143,7 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label class="col-sm-2 control-label">Click Save</label>
+                                            <label class="col-sm-2 control-label"></label>
                                             <div class="col-sm-10">
                                                 <button ng-click="addObject()">Insert Object</button>
                                             </div>
@@ -160,7 +183,7 @@
                             <div ng-show="objectAction == 'EditRemove'">
                                 <select ng-model="selectedObject" ng-options="object.name for object in objects">
 
-                                </select>
+                                </select> <button ng-disabled="selectedObject.id == -1" ng-click="removeObject()">Remove</button>
 
                                 <div ng-show="editableObject" class="form-horizontal">
                                     <div class="form-group">
@@ -250,52 +273,58 @@
                     <div id="collapseThree" class="panel-collapse collapse">
                         <div class="panel-body">
                             <form class="form-horizontal">
-                                <div class="form-group">
-                                    <label class="col-sm-3 control-label">Look at (0,0,0)</label>
+								<div class="form-group">
+                                    <label class="col-sm-3 control-label"><button ng-click="camera.position.x = 0; camera.position.y = 1000; camera.position.z = 100">Reset Camera</button></label>
                                     <div class="col-sm-9">
+                                        
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Look at (0,0,0)</label>
+                                    <div class="col-sm-8">
                                         <input ng-model="lookAt000" type="checkbox" ng-init="lookAt000 = true">
                                     </div>
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="col-sm-3 control-label">Move X </label>
-                                    <div class="col-sm-9">
+                                    <label class="col-sm-4 control-label">Move X </label>
+                                    <div class="col-sm-8">
                                         <input ng-model="camera.position.x" type="range" min="-3000" max="3000" step="50"><input type="text" ng-model="camera.position.x"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-sm-3 control-label">Move Y</label>
-                                    <div class="col-sm-9">
+                                    <label class="col-sm-4 control-label">Move Y</label>
+                                    <div class="col-sm-8">
                                         <input ng-model="camera.position.y" type="range" min="-3000" max="3000" step="50"><input type="text" ng-model="camera.position.y"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-sm-3 control-label">Move Z</label>
-                                    <div class="col-sm-9">
+                                    <label class="col-sm-4 control-label">Move Z</label>
+                                    <div class="col-sm-8">
                                         <input ng-model="camera.position.z" type="range" min="-3000" max="3000" step="50"><input type="text" ng-model="camera.position.z"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-sm-3 control-label">Frustum</label>
-                                    <div class="col-sm-9">
+                                    <label class="col-sm-4 control-label">Frustum</label>
+                                    <div class="col-sm-8">
                                         <input ng-model="fovString" type="range" min="0" max="180"><input type="text" ng-model="fovString"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-sm-3 control-label">Aspect</label>
-                                    <div class="col-sm-9">
+                                    <label class="col-sm-4 control-label">Aspect</label>
+                                    <div class="col-sm-8">
                                         <input ng-model="camera.aspect" type="range" min="1" max="5" step="0.001"><input type="text" ng-model="camera.aspect"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-sm-3 control-label">Near</label>
-                                    <div class="col-sm-9">
+                                    <label class="col-sm-4 control-label">Near</label>
+                                    <div class="col-sm-8">
                                         <input ng-model="nearString" type="range" min="1" max="3000"><input type="text" ng-model="nearString"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-sm-3 control-label">Far</label>
-                                    <div class="col-sm-9">
+                                    <label class="col-sm-4 control-label">Far</label>
+                                    <div class="col-sm-8">
                                         <input ng-model="farString" type="range" min="0" max="5000"><input type="text" ng-model="farString"/>
                                     </div>
                                 </div>
