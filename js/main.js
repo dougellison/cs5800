@@ -1,12 +1,5 @@
 'use strict';
 
-//TODO: Things to implement.  Order of importance / whatever
-/**
- * 1. Import / Export of Objects
- * 5. Add some kind of recordable rotation
- * 6. Add more meshes
- * 7.
- */
 // Declare app level module which has no dependencies.
 // AngjularJS is a client side javascript MVC.
 angular.module('mainApp', [])
@@ -17,29 +10,26 @@ angular.module('mainApp', [])
         $scope.selectedObjectType = 'Cube';
 
 
+		// Stores the list of added objects
         $scope.objects = [];
+		// This is the default that shows up in the select box for addition.
         $scope.objects.push({id:-1, name: 'Select an Object', data: {}});
         $scope.objectCounter = 0;
 
         $scope.selectedObject = $scope.objects[0];
 
+		// The next section just sets up a bunch of variables that will be used across many different functions.
         $scope.raycaster = new THREE.Raycaster();
         $scope.projector = new THREE.Projector();
         $scope.mouse = new THREE.Vector2()
-
         $scope.cameraRepresentation = {};
-
 		$scope.offset = new THREE.Vector3()
 
+		// The following are the two basic materials used in the system.
         $scope.basicMaterial = new THREE.MeshNormalMaterial( { shading: THREE.SmoothShading, overdraw: true } )
         $scope.selectedMaterial = new THREE.MeshBasicMaterial( {wireframe: true, color: 'red'} );
 
-
-        $scope.sayHello = function(keyEvent) {
-            alert('Hi there');
-        }
-
-            // This is the main init of the ThreeJS library.  It sets up the scene / camera and adds the objects
+		// This is the main init of the ThreeJS library.  It sets up the scene / camera and adds the objects
         $scope.initCanvas = function() {
 
             var camera, scene, renderer, controls;
@@ -58,26 +48,14 @@ angular.module('mainApp', [])
             mainDiv.append(renderer.domElement);
 
             // This creates a camera that is controlled by the user
-            //camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
-			
-			//camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
-			
             camera = new THREE.PerspectiveCamera( 70, 1070 / 500, 1, 10000 );
             $scope.nearString = 1;
             $scope.farString = 3000;
-			//camera.position.z = 1000;
             camera.position.set( 0, 1000, 100);
-            //camera.lookAt( new THREE.Vector3( 0,0, 0 ) );
 
-
-
+			// Get a reference do the div element where the canvas is being drawn and pass it to controls.  Controls is what allows dragging and manipulation of the camera.
             var divElement = $('#mainDrawLocation');
 			divElement.on('mousewheel')
-//            var divElement = document.getElementById('mainDrawLocation');
-            // This includes trackBallControls.  Its an additional library that can be included that is provided with but separately from ThreeJS
-            // It handles rotation and zoom in and out based purely on mouse controls.
-			
-            //var controls = new THREE.TrackballControls(camera);
 			var controls = new THREE.TrackballControls(camera, divElement);
             controls.rotateSpeed = 1.0;
             controls.zoomSpeed = 1.2;
@@ -90,23 +68,22 @@ angular.module('mainApp', [])
             $scope.controls = controls;
 			$scope.controls.enabled = true;
 
-            // Set the depth where the camera starts. This can be changed with the user control zoom level
-            //camera.position.z = 400;
-
             // This creates a Scene.  ThreeJS has a specific concept of a Scene which is a container for all things
             // in the viewable space.  Later meshes / camera will be added to the scene.
             scene = new THREE.Scene();
 
+			// This sets up a grid that displays in the background for perspective.
             var grid = new THREE.GridHelper( 1000, 40 );
             scene.add(grid);
 
+			// Sets a very generic light source just so that things have something that lights them up.
             var light = new THREE.DirectionalLight( 0xffffff, 2 );
             light.position.set( 500, 500, 500 );
 
             scene.add(light);
 
-			//$scope.plane = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000, 8, 8 ), new THREE.MeshBasicMaterial( { color: 'red', wireframe: true } ) );
-			$scope.plane = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true, wireframe: true } ) );
+			// This is what will be used for dragging and dropping various elements. Because the camera can be rotated many different ways this gives some idea of how an object will move when dragged.
+			$scope.plane = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000, 8, 8 ), new THREE.MeshBasicMaterial( { color: 'red', wireframe: true } ) );
 			$scope.plane.visible = false;
 			scene.add( $scope.plane );
 
@@ -130,9 +107,6 @@ angular.module('mainApp', [])
             $scope.scene = scene;
             $scope.camera = camera;
             $scope.renderer = renderer;
-
-//            controls = new THREE.OrbitControls( camera );
-//            controls.addEventListener( 'change', $scope.renderer );
 
         }
 
@@ -179,6 +153,7 @@ angular.module('mainApp', [])
         $scope.animate();
 
 
+		// This watches the UI for any changes in where the camera is directed.  If changes occur I want to see if look at is checked and then update the projection matrix.
         $scope.$watch('camera.position.x', function(newValue) {
 		
             if (!angular.isDefined(newValue))
@@ -214,12 +189,7 @@ angular.module('mainApp', [])
             $scope.camera.updateProjectionMatrix();
         })
 
-//        $scope.$watch('camera.near', function(newValue){
-//            if (angular.isDefined(newValue)) {
-//                $scope.camera.near =
-//                $scope.camera.updateProjectionMatrix();
-//            }
-//        })
+		// This is watching the frustum controls.  The UI takes data in string form and ThreeJS needs the data to be in float format.
         $scope.$watch('fovString', function(newValue) {
             if (angular.isDefined(newValue)) {
                 $scope.camera.fov = parseFloat(newValue);
@@ -227,7 +197,7 @@ angular.module('mainApp', [])
             }
         })
 
-
+		// Watches the nearString and updates the camera if a user types in a value.
         $scope.$watch('nearString', function(newValue) {
             if (angular.isDefined(newValue)) {
                 $scope.camera.near = parseFloat(newValue);
@@ -235,6 +205,7 @@ angular.module('mainApp', [])
             }
         })
 
+		// This watches the far string and if the user makes a changes converts it to a float for updating in the camera settings.
         $scope.$watch('farString', function(newValue) {
             if (angular.isDefined(newValue)) {
                 $scope.camera.far = parseFloat(newValue);
@@ -242,12 +213,13 @@ angular.module('mainApp', [])
             }
         })
 
-
+		// Same as above except watches aspect.
         $scope.$watch('camera.aspect', function(newValue) {
             if (angular.isDefined(newValue))
                 $scope.camera.updateProjectionMatrix();
         })
 
+		// This is entry point for a user clicking the button to add an element to the canvas.
         $scope.addObject = function() {
             if ($scope.selectedObjectType == 'Cube')
                 $scope.addCube();
@@ -255,6 +227,10 @@ angular.module('mainApp', [])
                 $scope.addSphere();
         }
 
+		/*
+		*	Method that gets called both on importing and when a user wants to add a new element.  If import is the origination of execution the variable element will have a value that I want to pull in and base the new object off of.  If it has no
+		*	value then its new and I just set some defaults.
+		*/
         $scope.addCube = function(element) {
             var geometry = {};
 			if (angular.isUndefined(element))
@@ -271,6 +247,7 @@ angular.module('mainApp', [])
 			else {
 				cube.position = new THREE.Vector3(element.position.x, element.position.y, element.position.z);
 				_.extend(cube, _.pick(element, ['rotateType', 'rotationXAmount', 'rotationYAmount', 'rotationZAmount']));
+				_.extend(cube.rotation, element.rotation);
 			}
             
 			cube.geometry.dynamic = true
@@ -282,6 +259,9 @@ angular.module('mainApp', [])
 
         }
 
+		/*
+		*	Same as addCube just with spheres
+		*/
         $scope.addSphere = function(element) {
 
 			var sphereGeometry = {};
@@ -299,6 +279,7 @@ angular.module('mainApp', [])
 			else {
 				sphere.position = new THREE.Vector3(element.position.x, element.position.y, element.position.z);
 				_.extend(sphere, _.pick(element, ['rotateType', 'rotationXAmount', 'rotationYAmount', 'rotationZAmount']));
+				_.extend(sphere.rotation, element.rotation);
 			}
             
             sphere.isType = "Sphere";
@@ -308,6 +289,10 @@ angular.module('mainApp', [])
             $scope.objectCounter++;
         }
 
+		/*
+		*	Keeps track of the UI element for selecting an element.  If the user selects the object using the select box within edit I want to know about it.  The object that gets selected will need to be displayed differently within the canvas
+		*	to account for this I use a wireFrame material to show that it is selected yet keep some idea of what the object is.
+		*/
         $scope.$watch('selectedObject', function(newValue) {
             if (!angular.isDefined(newValue))
                 return;
@@ -325,41 +310,20 @@ angular.module('mainApp', [])
             })
         })
 
-//        $scope.test = function(event) {
-//
-//            var divElement = event.currentTarget;
-//            var rect = divElement.getBoundingClientRect();
-//
-//            $scope.mouse.x = ( (event.clientX - rect.left)/ 1070 ) * 2 - 1;
-//            $scope.mouse.y = - ( (event.clientY - rect.top)/ 500) * 2 + 1;
-//
-//            console.log("X: " + $scope.mouse.x + " Y: " + $scope.mouse.y);
-//            var vector = new THREE.Vector3( $scope.mouse.x, $scope.mouse.y, 0.5 );
-//            $scope.camera.updateProjectionMatrix();
-//            $scope.projector.unprojectVector( vector, $scope.camera );
-//
-//            $scope.raycaster.set($scope.cleanVector($scope.camera.position), vector.sub($scope.cleanVector($scope.camera.position) ).normalize() );
-//
-//            var intersects = $scope.raycaster.intersectObjects( $scope.scene.children );
-//            if (intersects.length > 0){
-//                $scope.editableObject = intersects[0];
-//                $scope.editableObject.material.color =  new THREE.Color( "blue");
-//
-//            }
-//            else {
-//                if (angular.isDefined($scope.editableObject) && $scope.editableObject.material)
-//                    $scope.editableObject.material.color =  new THREE.Color("red");
-//            }
-//
-//
-//
-//        }
-
+		/*
+		*	This method rounds and parses to an int user input.  When a user types in a value such as 1.23423423423432 it comes in both as a string and non-useful.  For the purpose of calculation whole numbers is all that can be distinguised. 
+		*	Instead of disallowing I simply choose to round to the nearest whole.
+		*/
         $scope.cleanVector = function(vector) {
             return new THREE.Vector3(parseInt(Math.round(vector.x)), parseInt(Math.round(vector.y)), parseInt(Math.round(vector.z)));
         }
 		
-		$scope.logPosition = function(event) {
+		/*
+		*	This method has a few important functions.  For drag and drop of an element it is important to update the plane with an offset to get some idea of how an object will move given the current camera rotation.
+		*	Secondly I need to check and see if the user has a mousedown operation so I know if the user is dragging an object around.  If the user is dragging an object around I need to update its position with each
+		*	call to this function.  
+		*/
+		$scope.updatePlaneAndOverObject = function(event) {
             var divElement = event.currentTarget;
             var rect = divElement.getBoundingClientRect();
 
@@ -388,20 +352,17 @@ angular.module('mainApp', [])
 			}
 			
             if (intersects.length > 0){
-  //              _.any(intersects, function(intersect) {
-//                    if (angular.isDefined(intersect.object.listID)){
-                        console.log('I have found it!!!!');
-						$scope.overObject = intersects[0].object;
-						$scope.plane.position.copy( $scope.overObject.position );
-						$scope.plane.lookAt( $scope.camera.position );
-//                    }
-//                })
-				
-				// This means the cursor has been placed over an object.  Need to update plane
+				$scope.overObject = intersects[0].object;
+				$scope.plane.position.copy( $scope.overObject.position );
+				$scope.plane.lookAt( $scope.camera.position );
             }
             
         }
 
+		/*
+		*	This controls finding an object.  It uses a raycaster to normalive the view given the position of the camera to see what object was selected.  Also it sets $scope.selectedObject so that other methods know when
+		*	an object is being drug.  Lastly it does one final update of the plane and bounds the drag operation within that plane.
+		*/
         $scope.pickObject = function(event) {
             var divElement = event.currentTarget;
             var rect = divElement.getBoundingClientRect();
@@ -460,6 +421,10 @@ angular.module('mainApp', [])
             }
         }
 
+		/*
+		*	Controls the deselection of elements that were not clicked on.  This function gets triggered anytime a click occurs.  It assumes that a selection operation will get called immediately after this gets called.  
+		*	The benefit of that assumption is that it attempts to remove and reset all materials to their original.
+		*/
         $scope.deSelect = function(object, clearDropdown) {
             if (angular.isDefined(object) && object.material) {
                 if ($scope.editableObject.isType == "Sphere")
@@ -517,6 +482,10 @@ angular.module('mainApp', [])
 				_.extend(objectProperties, _.pick(meshData, ['position', 'rotateType', 'rotationXAmount', 'rotationYAmount', 'rotationZAmount', 'isType']));
 				
 				var geometry = {};
+				var rotation = {};
+				_.extend(rotation, _.pick(meshData.rotation, ['x', 'y', 'z']));
+				
+				objectProperties.rotation = rotation;
 				
 				if (meshData.isType == 'Cube') {
 					// This is the case where it is a cube.
@@ -541,6 +510,10 @@ angular.module('mainApp', [])
 			return returnString;
 		}
 		
+		/*
+		*	This function gets called when a user clicks import.  It parses any data input in the text area and builds objects out of the input.  
+		*	If all goes well and the user entered valid data then it will build the corresponding objects to be added to the canvas.
+		*/
 		$scope.import = function() {
 			if (angular.isUndefined($scope.importJSON) || $scope.importJSON.length < 1) {
 				alert('You must paste valid JSON into the import textarea');
@@ -552,6 +525,11 @@ angular.module('mainApp', [])
 				var jsonObject = {};
 				try {
 					jsonObject = JSON.parse(element);
+					if (angular.isDefined(jsonObject.rotation)) {
+						jsonObject.rotation.x = parseFloat(jsonObject.rotation.x);
+						jsonObject.rotation.y = parseFloat(jsonObject.rotation.y);
+						jsonObject.rotation.z = parseFloat(jsonObject.rotation.z);
+					}
 				}
 				catch(error) {
 					alert('The following element was not valid JSON: ' + element);
@@ -589,6 +567,22 @@ angular.module('mainApp', [])
 			
 			$scope.objects.splice(indexToRemove, 1);
 			$scope.selectedObject = $scope.objects[0];
+		}
+		
+		// This resets the camera back to default.
+		$scope.resetCamera = function() {
+		
+			$scope.nearString = 1;
+			$scope.farString = 3000;
+			$scope.fovString = 70;
+			$scope.controls.reset();
+			$scope.camera.fov = 70;
+			$scope.camera.aspect = 2.14;
+			$scope.camera.near = 1;
+			$scope.camera.far = 3000;
+			$scope.camera.updateProjectionMatrix();
+		
+		
 		}
 
 
